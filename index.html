@@ -139,8 +139,8 @@ footer { font-size: 13px; color: var(--muted); }
 
   <figure id="f1">
     <p class="fig-num">Chart 1</p>
-    <h2>Which side of the ball did each champion rank higher on?</h2>
-    <p class="read">For each Super Bowl winner, whether its regular-season defense rank or offense rank was better.</p>
+    <h2>Did the champion have the better defense, or the better offense?</h2>
+    <p class="read">In each of the 60 Super Bowls, the winner's regular-season ranks compared with the team it beat.</p>
     <div class="plot" id="c1"></div>
     <details><summary>Show as a table</summary><div class="tbl" id="t1"></div></details>
   </figure>
@@ -253,43 +253,53 @@ const opponentOf = w => DATA.find(r => r.super_bowl === w.super_bowl && !W(r));
   });
 })();
 
-/* ---------- Chart 1: which unit ranked higher ---------- */
+/* ---------- Chart 1: champion vs the team it beat ---------- */
 function chart1() {
   const host = document.getElementById("c1"); host.replaceChildren();
   const width = Math.max(300, host.clientWidth), narrow = width < 560;
-  const rows = [
-    { name: "Defense ranked higher", key: "Defense", col: "--defense" },
-    { name: "Offense ranked higher", key: "Offense", col: "--offense" },
-    { name: "Same rank", key: "Even", col: "--muted" },
-  ].map(r => ({ ...r, teams: winners.filter(w => w.better_unit === r.key) }));
-  const labelW = narrow ? 0 : 200, padR = 8, bar = 22, gap = narrow ? 54 : 30, top = 4;
-  const h = top + rows.length * (bar + gap) - gap + (narrow ? 26 : 0) + 8;
-  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "How many Super Bowl champions ranked higher on defense, on offense, or the same" }, host);
+  const rows = [["Defense", "defense_rank", "--defense"], ["Offense", "offense_rank", "--offense"]].map(([unit, k, col]) => {
+    const better = [], same = [], worse = [];
+    for (const w of winners) { const o = opponentOf(w)[k]; (w[k] < o ? better : w[k] > o ? worse : same).push(w); }
+    return { unit, col, better, same, worse };
+  });
+  const labelW = narrow ? 0 : 150, padR = 8, bar = 26, rowH = narrow ? 96 : 76, top = narrow ? 22 : 4;
+  const h = top + rowH * rows.length - 14;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "How often the champion had a better defense, and a better offense, than the team it beat" }, host);
   const tt = tooltip(host);
-  const x0 = labelW, x = v => x0 + v * (width - x0 - padR);
+  const x0 = labelW, span = width - x0 - padR, gapPx = 2;
   rows.forEach((r, i) => {
-    const yTop = top + i * (bar + gap) + (narrow ? 22 : 0);
-    if (narrow) txt(svg, 0, yTop - 8, r.name, { class: "row-lbl" });
-    else txt(svg, 0, yTop + bar / 2 + 5, r.name, { class: "row-lbl" });
-    el("rect", { x: x0, y: yTop, width: x(1) - x0, height: bar, rx: 4, fill: css("--track") }, svg);
-    const share = r.teams.length / 60;
-    el("rect", { x: x0, y: yTop, width: Math.max(4, x(share) - x0), height: bar, rx: 4, fill: css(r.col), class: "mark" }, svg);
-    const label = `${r.teams.length} of 60 champions · ${pct(r.teams.length, 60)}%`;
-    const t = txt(svg, x(share) + 8, yTop + bar / 2 + 4.5, label, { class: "lbl", "font-size": 12.5 });
-    if (x(share) + 8 + t.getComputedTextLength() > x(1) - 4) t.textContent = `${r.teams.length} of 60 · ${pct(r.teams.length, 60)}%`;
-    const hit = el("rect", { x: x0, y: yTop - 6, width: x(1) - x0, height: bar + 12, class: "hit" }, svg);
-    hit.setAttribute("aria-label", `${r.name}: ${label}`);
-    bindHit(hit, host, tt, tip => {
-      tip.appendChild(html("div", r.name, "k"));
-      tipRow(tip, css(r.col), String(r.teams.length), "champions");
-      tip.appendChild(document.createElement("hr"));
-      const recent = r.teams.slice(-4).reverse().map(w => `${w.season} ${nickname(w)}`).join(", ");
-      tip.appendChild(html("div", `Most recent: ${recent}`, "k"));
+    const yTop = top + i * rowH;
+    if (narrow) txt(svg, 0, yTop - 8, `Champion's ${r.unit.toLowerCase()}`, { class: "row-lbl" });
+    else txt(svg, 0, yTop + bar / 2 + 5, `Champion's ${r.unit.toLowerCase()}`, { class: "row-lbl" });
+    const segs = [["Better than opponent", r.better, css(r.col)], ["Same rank", r.same, css("--axis")], ["Worse than opponent", r.worse, css("--muted")]];
+    let x = x0;
+    segs.forEach(([name, teams, fill], j) => {
+      const wPx = teams.length / 60 * span - (j < 2 ? gapPx : 0);
+      if (teams.length) {
+        el("rect", { x, y: yTop, width: Math.max(2, wPx), height: bar, rx: 4, fill, class: "mark" }, svg);
+        const hit = el("rect", { x, y: yTop - 4, width: Math.max(8, wPx), height: bar + 8, class: "hit" }, svg);
+        hit.setAttribute("aria-label", `${r.unit}: ${name.toLowerCase()} in ${teams.length} of 60 Super Bowls`);
+        bindHit(hit, host, tt, tip => {
+          tip.appendChild(html("div", `Champion's ${r.unit.toLowerCase()} · ${name.toLowerCase()}`, "k"));
+          tipRow(tip, fill, `${teams.length} of 60`, "Super Bowls");
+          tip.appendChild(document.createElement("hr"));
+          tip.appendChild(html("div", "e.g. " + teams.slice(-3).reverse().map(w => `${w.season} ${nickname(w)}`).join(", "), "k"));
+        });
+      }
+      x += teams.length / 60 * span;
+    });
+    // counts under the bar, in text ink with a swatch beside each
+    const parts = [[r.better.length, "better", css(r.col)], [r.same.length, "same", css("--axis")], [r.worse.length, "worse", css("--muted")]];
+    let tx = x0;
+    parts.forEach(([n, word, fill]) => {
+      el("rect", { x: tx, y: yTop + bar + 12, width: 10, height: 10, rx: 2, fill }, svg);
+      const t1 = txt(svg, tx + 15, yTop + bar + 21, n, { class: "lbl" });
+      const t2 = txt(svg, tx + 15 + t1.getComputedTextLength() + 4, yTop + bar + 21, word, { class: "lbl-2" });
+      tx += 15 + t1.getComputedTextLength() + 4 + t2.getComputedTextLength() + 18;
     });
   });
-  table(document.getElementById("t1"), ["", "Champions", "Teams"],
-    rows.map(r => [r.name, r.teams.length, r.teams.map(w => `${w.season} ${nickname(w)}`).join(", ")]), [1]);
-  document.querySelectorAll("#t1 td:last-child").forEach(td => { td.style.whiteSpace = "normal"; td.style.minWidth = "320px"; });
+  table(document.getElementById("t1"), ["", "Better than opponent", "Same rank", "Worse than opponent"],
+    rows.map(r => [`Champion's ${r.unit.toLowerCase()}`, r.better.length, r.same.length, r.worse.length]), [1, 2, 3]);
 }
 
 /* ---------- Chart 2: elite units among champions ---------- */
