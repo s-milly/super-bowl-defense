@@ -51,6 +51,10 @@ a:focus-visible, button:focus-visible, summary:focus-visible, th button:focus-vi
 
 header { display: grid; gap: 18px; max-width: 860px; }
 .all, .method { max-width: 860px; }
+.why { display: grid; gap: 12px; max-width: 68ch; }
+.why h2 { font: 600 clamp(20px, 3.2vw, 26px)/1.2 var(--font-display); margin: 0; }
+.why p { margin: 0; font-size: 16.5px; color: var(--ink-2); }
+.why .placeholder { border: 1.5px dashed var(--axis); border-radius: 10px; padding: 14px 16px; color: var(--muted); font-style: italic; }
 .eyebrow { font: 600 12px/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0; }
 h1 { font: 700 clamp(36px, 7vw, 60px)/1.02 var(--font-display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
 .lede { font-size: 18px; color: var(--ink-2); max-width: 62ch; margin: 0; }
@@ -139,6 +143,12 @@ footer { font-size: 13px; color: var(--muted); }
       <li><span class="sw sw--def"></span>Defense (rank in points allowed)</li>
     </ul>
   </header>
+
+  <section class="why" id="why" aria-labelledby="why-title">
+    <h2 id="why-title">Why I started this project</h2>
+    <!-- Shawn: replace the placeholder paragraph below with your own words. Add more <p> paragraphs as needed. -->
+    <p class="placeholder">Your story goes here: what made you want to test "defense wins championships," and what you hoped to find.</p>
+  </section>
 
   <figure id="f3" class="wide">
     <p class="fig-num">Chart 1</p>
