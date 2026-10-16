@@ -169,7 +169,7 @@ footer { font-size: 13px; color: var(--muted); }
   <figure id="fW">
     <p class="fig-num">Chart 3</p>
     <h2>How often did elite offenses and defenses win the Super Bowl?</h2>
-    <p class="read">Every team that reached the Super Bowl, winners and losers, grouped by its regular-season rank. Each bar is the share of those teams that won the game. For example, 72 teams reached the Super Bowl with a top 5 offense, and 36 of them won (50%). The darker line marks 50%. A team can count on both sides.</p>
+    <p class="read">The faded bar is every team that reached the Super Bowl with that regular-season rank. The solid part is how many of them won, and the percentage on top is their win rate. A team can count on both sides.</p>
     <div class="plot" id="cW"></div>
     <details><summary>Show as a table</summary><div class="tbl" id="tW"></div></details>
   </figure>
@@ -430,33 +430,38 @@ function chartWinRate() {
     off: { won: winners.filter(r => r.offense_rank <= k).length, n: DATA.filter(r => r.offense_rank <= k).length },
     def: { won: winners.filter(r => r.defense_rank <= k).length, n: DATA.filter(r => r.defense_rank <= k).length },
   }));
-  const padL = 40, padR = 8, padT = 26, plotH = 240, padB = 54, h = padT + plotH + padB;
-  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "Super Bowl win rate for teams ranked #1, top 3, top 5 and top 10 on offense and defense" }, host);
+  const ymax = Math.ceil(Math.max(...stats.map(s => Math.max(s.off.n, s.def.n))) / 20) * 20;
+  const padL = 34, padR = 8, padT = 26, plotH = 260, padB = 34, h = padT + plotH + padB;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "Super Bowl teams ranked #1, top 3, top 5 and top 10 on offense and defense: how many reached the game and how many won" }, host);
   const tt = tooltip(host);
-  const y = v => padT + (1 - v) * plotH;
-  [0, .25, .5, .75, 1].forEach(v => {
-    el("line", { x1: padL, x2: width - padR, y1: y(v), y2: y(v), stroke: css(v === .5 ? "--axis" : "--grid"), "stroke-width": v === .5 ? 1.5 : 1 }, svg);
-    txt(svg, padL - 8, y(v) + 4, Math.round(v * 100) + "%", { "text-anchor": "end" });
-  });
+  const y = v => padT + (1 - v / ymax) * plotH;
+  for (let v = 0; v <= ymax; v += 20) {
+    el("line", { x1: padL, x2: width - padR, y1: y(v), y2: y(v), stroke: css("--grid") }, svg);
+    txt(svg, padL - 8, y(v) + 4, v, { "text-anchor": "end" });
+  }
+  const col = (bx, bw, top, fill, opacity) => el("path", { d: `M${bx},${y(0)} V${top + 4} Q${bx},${top} ${bx + 4},${top} H${bx + bw - 4} Q${bx + bw},${top} ${bx + bw},${top + 4} V${y(0)} Z`, fill, "fill-opacity": opacity, class: "mark" }, svg);
   const band = (width - padL - padR) / tiers.length, bw = Math.min(24, band / 3.4), gap2 = 6;
   stats.forEach((s, i) => {
     const cx = padL + band * i + band / 2;
-    [["Offense", s.off, "--offense", -1], ["Defense", s.def, "--defense", 1]].forEach(([unit, v, col, side]) => {
-      const share = v.won / v.n, bx = side < 0 ? cx - gap2 / 2 - bw : cx + gap2 / 2;
-      const bh = Math.max(2, share * plotH), by = y(share);
-      el("path", { d: `M${bx},${y(0)} V${by + 4} Q${bx},${by} ${bx + 4},${by} H${bx + bw - 4} Q${bx + bw},${by} ${bx + bw},${by + 4} V${y(0)} Z`, fill: css(col), class: "mark" }, svg);
-      txt(svg, bx + bw / 2, by - 7, pct(v.won, v.n) + "%", { "text-anchor": "middle", class: "lbl", "font-size": narrow ? 11 : 12 });
+    // percentage labels sit on the faded bars; when the two bars are close in height, lift the taller one's label so they don't touch
+    let lo = y(s.off.n) - 7, ld = y(s.def.n) - 7;
+    if (Math.abs(lo - ld) < 15) { if (lo <= ld) lo = ld - 15; else ld = lo - 15; }
+    [["Offense", s.off, "--offense", -1, lo], ["Defense", s.def, "--defense", 1, ld]].forEach(([unit, v, c, side, ly]) => {
+      const bx = side < 0 ? cx - gap2 / 2 - bw : cx + gap2 / 2;
+      col(bx, bw, y(v.n), css(c), .22);                 // faded: every team that reached the Super Bowl
+      col(bx, bw, y(v.won), css(c), 1);                 // solid: the ones that won
+      txt(svg, bx + bw / 2, ly, pct(v.won, v.n) + "%", { "text-anchor": "middle", class: "lbl", "font-size": narrow ? 11 : 12 });
       const hit = el("rect", { x: bx - 4, y: padT, width: bw + 8, height: plotH, class: "hit" }, svg);
-      hit.setAttribute("aria-label", `${unit} ${s.name.toLowerCase()}: won ${v.won} of ${v.n} Super Bowls`);
+      hit.setAttribute("aria-label", `${unit} ${s.name.toLowerCase()}: ${v.won} of ${v.n} won the Super Bowl, ${pct(v.won, v.n)}%`);
       bindHit(hit, host, tt, tip => {
         tip.appendChild(html("div", `${unit} · ${s.name}`, "k"));
-        tipRow(tip, css(col), `${pct(v.won, v.n)}%`, `won ${v.won} of ${v.n} appearances`);
+        tipRow(tip, css(c), `${pct(v.won, v.n)}%`, `won ${v.won} of ${v.n}`);
+        tip.appendChild(html("div", `${v.n} reached the Super Bowl · ${v.won} won · ${v.n - v.won} lost`, "k"));
       });
     });
-    txt(svg, cx, y(0) + 20, s.name, { "text-anchor": "middle", class: "row-lbl", "font-size": 13 });
-    if (!narrow) txt(svg, cx, y(0) + 38, `Off: ${s.off.won} of ${s.off.n} won · Def: ${s.def.won} of ${s.def.n} won`, { "text-anchor": "middle", "font-size": 11 });
+    txt(svg, cx, y(0) + 22, s.name, { "text-anchor": "middle", class: "row-lbl", "font-size": 13 });
   });
-  table(document.getElementById("tW"), ["Regular-season rank", "Offense: won / appearances", "Offense win %", "Defense: won / appearances", "Defense win %"],
+  table(document.getElementById("tW"), ["Regular-season rank", "Offense: won / reached", "Offense win %", "Defense: won / reached", "Defense win %"],
     stats.map(s => [s.name, `${s.off.won} / ${s.off.n}`, pct(s.off.won, s.off.n) + "%", `${s.def.won} / ${s.def.n}`, pct(s.def.won, s.def.n) + "%"]), [1, 2, 3, 4]);
 }
 
