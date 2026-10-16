@@ -144,8 +144,25 @@ footer { font-size: 13px; color: var(--muted); }
     </ul>
   </header>
 
-  <figure id="f1">
+  <figure id="f3" class="wide">
     <p class="fig-num">Chart 1</p>
+    <h2>Every champion, Super Bowl by Super Bowl</h2>
+    <p class="read">Each column is one Super Bowl winner, labeled at the top with its season and team. Blue dots are defense rank and orange dots are offense rank. Higher on the chart is better (1 = best in the league). The dashed lines are lines of best fit; "per decade" is how much the average rank changes every 10 years, and a plus means it got worse. Leagues were smaller before 1970 (9 to 16 teams).</p>
+    <p class="swipe">Swipe sideways to see every season.</p>
+    <div class="scroll"><div class="plot" id="c3"></div></div>
+    <details><summary>Show as a table</summary><div class="tbl" id="t3"></div></details>
+  </figure>
+
+  <figure id="f2">
+    <p class="fig-num">Chart 2</p>
+    <h2>How many champions had an elite offense or defense?</h2>
+    <p class="read">Number of the 60 Super Bowl winners ranked #1, top 3, top 5 and top 10 in their league. A team can count on both sides.</p>
+    <div class="plot" id="c2"></div>
+    <details><summary>Show as a table</summary><div class="tbl" id="t2"></div></details>
+  </figure>
+
+  <figure id="f1">
+    <p class="fig-num">Chart 3</p>
     <h2>How did each team compare with its Super Bowl opponent?</h2>
     <div class="tabs" role="tablist" aria-label="Chart 1 views">
       <button type="button" role="tab" id="tab-a" aria-selected="true" aria-controls="panel-a">Champions</button>
@@ -161,23 +178,6 @@ footer { font-size: 13px; color: var(--muted); }
       <div class="plot" id="c1b"></div>
       <details><summary>Show as a table</summary><div class="tbl" id="t1b"></div></details>
     </div>
-  </figure>
-
-  <figure id="f2">
-    <p class="fig-num">Chart 2</p>
-    <h2>How many champions had an elite offense or defense?</h2>
-    <p class="read">Number of the 60 Super Bowl winners ranked #1, top 3, top 5 and top 10 in their league. A team can count on both sides.</p>
-    <div class="plot" id="c2"></div>
-    <details><summary>Show as a table</summary><div class="tbl" id="t2"></div></details>
-  </figure>
-
-  <figure id="f3" class="wide">
-    <p class="fig-num">Chart 3</p>
-    <h2>Every champion, Super Bowl by Super Bowl</h2>
-    <p class="read">Each column is one Super Bowl winner, labeled at the top with its season and team. Blue dots are defense rank and orange dots are offense rank. Higher on the chart is better (1 = best in the league). The dashed lines are lines of best fit; "per decade" is how much the average rank changes every 10 years, and a plus means it got worse. Leagues were smaller before 1970 (9 to 16 teams).</p>
-    <p class="swipe">Swipe sideways to see every season.</p>
-    <div class="scroll"><div class="plot" id="c3"></div></div>
-    <details><summary>Show as a table</summary><div class="tbl" id="t3"></div></details>
   </figure>
 
   <section class="all" aria-labelledby="all-title">
