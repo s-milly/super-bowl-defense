@@ -152,7 +152,7 @@ footer { font-size: 13px; color: var(--muted); }
   <figure id="f3" class="wide">
     <p class="fig-num">Chart 3</p>
     <h2>Every champion, Super Bowl by Super Bowl</h2>
-    <p class="read">Each column is one Super Bowl winner, labeled with its season and team. Higher on the chart is better (1 = best in the league). The blue line follows defense rank and the orange line follows offense rank from one champion to the next. Leagues were smaller before 1970 (9 to 16 teams).</p>
+    <p class="read">Each column is one Super Bowl winner, labeled at the top with its season and team. Blue dots are defense rank and orange dots are offense rank. Higher on the chart is better (1 = best in the league). Leagues were smaller before 1970 (9 to 16 teams).</p>
     <p class="swipe">Swipe sideways to see every season.</p>
     <div class="scroll"><div class="plot" id="c3"></div></div>
     <details><summary>Show as a table</summary><div class="tbl" id="t3"></div></details>
@@ -331,9 +331,9 @@ function chart2() {
 function chart3() {
   const host = document.getElementById("c3"); host.replaceChildren();
   const avail = host.parentElement.clientWidth;
-  const padL = 30, padR = 8, padT = 30, plotH = 300, labelH = 124;
+  const padL = 30, padR = 8, labelH = 124, padT = labelH + 14, plotH = 300;   // season and team labels sit above the plot
   const colW = Math.max(15, (avail - padL - padR) / winners.length);
-  const width = padL + padR + colW * winners.length, h = padT + plotH + labelH;
+  const width = padL + padR + colW * winners.length, h = padT + plotH + 14;
   host.style.width = width + "px";
   const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, width, height: h, role: "img", "aria-label": "Offense and defense rank of every Super Bowl champion by season" }, host);
   const tt = tooltip(host);
@@ -341,34 +341,20 @@ function chart3() {
   const y = v => padT + (v - 1) / (ymax - 1) * plotH;
   const cx = i => padL + colW * i + colW / 2;
 
-  // decade bands
-  let start = 0;
-  winners.forEach((w, i) => {
-    const last = i === winners.length - 1 || decade(winners[i + 1].season) !== decade(w.season);
-    if (!last) return;
-    const d = decade(w.season), x1 = padL + colW * start, x2 = padL + colW * (i + 1);
-    if ((d / 10) % 2 === 0) el("rect", { x: x1, y: padT - 22, width: x2 - x1, height: plotH + 22 + labelH, fill: css("--track"), opacity: .55 }, svg);
-    txt(svg, x1 + 6, padT - 10, d + "s", { "font-size": 11.5, "font-weight": 600 });
-    start = i + 1;
-  });
   [1, 5, 10, 15, 20, 25].filter(v => v <= ymax).forEach(v => {
     el("line", { x1: padL, x2: width - padR, y1: y(v), y2: y(v), stroke: css("--grid") }, svg);
     txt(svg, padL - 8, y(v) + 4, v, { "text-anchor": "end" });
   });
-  const hover = el("rect", { x: 0, y: padT - 4, width: colW, height: plotH + labelH, fill: css("--ink"), opacity: 0, rx: 3 }, svg);
-
-  // one line per unit, connecting every champion in order
-  [["offense_rank", "--offense"], ["defense_rank", "--defense"]].forEach(([k, col]) =>
-    el("polyline", { points: winners.map((w, i) => `${cx(i)},${y(w[k])}`).join(" "), fill: "none", stroke: css(col), "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", "stroke-opacity": .85, class: "mark" }, svg));
+  const hover = el("rect", { x: 0, y: 0, width: colW, height: padT + plotH + 8, fill: css("--ink"), opacity: 0, rx: 3 }, svg);
 
   winners.forEach((w, i) => {
     const x = cx(i), yo = y(w.offense_rank), yd = y(w.defense_rank);
     // draw the worse unit first so the better one sits on top when they overlap
     const dots = [["--offense", yo, w.offense_rank], ["--defense", yd, w.defense_rank]].sort((a, b) => b[2] - a[2]);
     dots.forEach(([col, yy]) => el("circle", { cx: x, cy: yy, r: 4.5, fill: css(col), stroke: css("--surface"), "stroke-width": 2, class: "mark" }, svg));
-    const lab = txt(svg, 0, 0, `${w.season} ${nickname(w)}`, { "text-anchor": "end", "font-size": 11, transform: `translate(${x + 4} ${padT + plotH + 10}) rotate(-90)` });
+    const lab = txt(svg, 0, 0, `${w.season} ${nickname(w)}`, { "font-size": 11, transform: `translate(${x + 4} ${labelH}) rotate(-90)` });
     lab.style.fill = css("--ink-2");
-    const hit = el("rect", { x: padL + colW * i, y: padT - 4, width: colW, height: plotH + labelH, class: "hit" }, svg);
+    const hit = el("rect", { x: padL + colW * i, y: 0, width: colW, height: padT + plotH + 8, class: "hit" }, svg);
     const opp = opponentOf(w);
     hit.setAttribute("aria-label", `Super Bowl ${w.super_bowl}, ${w.season} ${w.team}: offense rank ${w.offense_rank}, defense rank ${w.defense_rank}`);
     bindHit(hit, host, tt, tip => {
