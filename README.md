@@ -2,7 +2,20 @@
 
 A look at every Super Bowl team (Super Bowls I through LX, the 1966 through 2025 seasons) and how each one ranked in the regular season on offense and on defense.
 
-This first stage is the dataset. Charts and analysis come next.
+**See the charts and write-up: https://s-milly.github.io/super-bowl-defense/**
+
+Growing up, coaches would always say, "Defense wins championships." After a debate with my roommate about whether you'd rather have the best offense or the best defense in the league, I built this project to find out which has mattered more for winning a Super Bowl.
+
+## What's here
+
+| Path | What it is |
+| --- | --- |
+| `index.html` | The chart page, served by GitHub Pages |
+| `site/page.html` | Source for the chart page (charts are drawn with plain JavaScript and SVG, no libraries) |
+| `data/super_bowl_rankings.csv` / `.json` | The dataset |
+| `data/raw/` | Untouched game results the dataset is built from |
+| `scripts/build_dataset.py` | Builds the dataset from the raw game results |
+| `scripts/build_page.py` | Builds `index.html` from `site/page.html` and the dataset |
 
 ## The data
 
@@ -51,6 +64,7 @@ Each run of `scripts/build_dataset.py`:
 
 ```
 python3 scripts/build_dataset.py
+python3 scripts/build_page.py
 ```
 
 Python 3, standard library only. To add a new season, refresh `data/raw/nflverse_games.csv` from nflverse and add the game to `SUPER_BOWLS` in the script.
