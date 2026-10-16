@@ -169,7 +169,7 @@ footer { font-size: 13px; color: var(--muted); }
   <figure id="fW">
     <p class="fig-num">Chart 3</p>
     <h2>How often did elite offenses and defenses win the Super Bowl?</h2>
-    <p class="read">Every team that reached the Super Bowl, winners and losers, grouped by its regular-season rank. Each bar is the share of those teams that won. The darker line marks 50%. A team can count on both sides.</p>
+    <p class="read">Every team that reached the Super Bowl, winners and losers, grouped by its regular-season rank. Each bar is the share of those teams that won the game. For example, 72 teams reached the Super Bowl with a top 5 offense, and 36 of them won (50%). The darker line marks 50%. A team can count on both sides.</p>
     <div class="plot" id="cW"></div>
     <details><summary>Show as a table</summary><div class="tbl" id="tW"></div></details>
   </figure>
@@ -454,7 +454,7 @@ function chartWinRate() {
       });
     });
     txt(svg, cx, y(0) + 20, s.name, { "text-anchor": "middle", class: "row-lbl", "font-size": 13 });
-    if (!narrow) txt(svg, cx, y(0) + 38, `${s.off.n} offenses · ${s.def.n} defenses`, { "text-anchor": "middle", "font-size": 11 });
+    if (!narrow) txt(svg, cx, y(0) + 38, `Off: ${s.off.won} of ${s.off.n} won · Def: ${s.def.won} of ${s.def.n} won`, { "text-anchor": "middle", "font-size": 11 });
   });
   table(document.getElementById("tW"), ["Regular-season rank", "Offense: won / appearances", "Offense win %", "Defense: won / appearances", "Defense win %"],
     stats.map(s => [s.name, `${s.off.won} / ${s.off.n}`, pct(s.off.won, s.off.n) + "%", `${s.def.won} / ${s.def.n}`, pct(s.def.won, s.def.n) + "%"]), [1, 2, 3, 4]);
