@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Does Defense Win Championships?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Regular-season offense and defense ranks for every Super Bowl winner and loser, Super Bowls I through LX.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one reading column; each chart is a figure with its question as the heading, a plot, then an optional table twin. Matches Shawn's portfolio (dark, Clarion gold). */
+:root {
+  --bg: #F5F6F8;
+  --surface: #FFFFFF;
+  --ink: #0E131B;
+  --ink-2: #4A5261;
+  --muted: #7A8291;
+  --grid: #E4E7EC;
+  --axis: #C5CAD3;
+  --line: rgba(14,19,27,.10);
+  --accent: #8A6410;
+  --offense: #EB6834;
+  --defense: #2A78D6;
+  --champ: #B07F12;
+  --track: #EEF0F3;
+  --font-display: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A0E14; --surface: #111722; --ink: #EEF1F5; --ink-2: #B4BBC7; --muted: #8590A0;
+    --grid: #1E2632; --axis: #2E3846; --line: rgba(255,255,255,.08); --accent: #E3B341;
+    --offense: #D95926; --defense: #3987E5; --champ: #E3B341; --track: #1A212C; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A0E14; --surface: #111722; --ink: #EEF1F5; --ink-2: #B4BBC7; --muted: #8590A0;
+  --grid: #1E2632; --axis: #2E3846; --line: rgba(255,255,255,.08); --accent: #E3B341;
+  --offense: #D95926; --defense: #3987E5; --champ: #E3B341; --track: #1A212C; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 400 16px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 56px 72px;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 56px; }
+a { color: inherit; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, summary:focus-visible, th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+header { display: grid; gap: 18px; }
+.eyebrow { font: 600 12px/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0; }
+h1 { font: 700 clamp(36px, 7vw, 60px)/1.02 var(--font-display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--ink-2); max-width: 62ch; margin: 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 6px 0 0; padding: 0; list-style: none; }
+.facts li { display: grid; gap: 2px; }
+.facts b { font: 600 22px/1.1 var(--font-display); }
+.facts span { font-size: 13px; color: var(--muted); }
+
+.legend-key { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); margin: 0; padding: 0; list-style: none; }
+.legend-key li { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.sw--off { background: var(--offense); } .sw--def { background: var(--defense); }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.dot--champ { background: var(--champ); }
+.dot--loser { border: 2px solid var(--muted); }
+
+figure { margin: 0; display: grid; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px clamp(16px, 3vw, 28px) 20px; min-width: 0; }
+.fig-num { font: 600 12px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+figure h2 { font: 600 clamp(20px, 3.2vw, 26px)/1.2 var(--font-display); margin: 0; text-wrap: balance; }
+.read { font-size: 14.5px; color: var(--ink-2); margin: 0; max-width: 66ch; }
+.plot { position: relative; width: 100%; min-width: 0; }
+.plot svg { display: block; width: 100%; height: auto; overflow: visible; }
+.plot text { font-family: var(--font-body); fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.plot .lbl { fill: var(--ink); font-weight: 600; font-size: 13px; }
+.plot .lbl-2 { fill: var(--ink-2); font-size: 12.5px; }
+.plot .row-lbl { fill: var(--ink); font-size: 14px; font-weight: 500; }
+.plot .zone { fill: var(--muted); font-size: 12px; font-weight: 500; letter-spacing: .02em; }
+.hit { fill: transparent; cursor: pointer; }
+.hit:focus { outline: none; }
+.mark { transition: opacity .15s; }
+.is-dim .mark:not(.is-on) { opacity: .35; }
+
+.tip { position: absolute; pointer-events: none; z-index: 5; background: var(--surface); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(0,0,0,.18); border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.45; min-width: 180px; max-width: 260px; }
+.tip strong { font-size: 15px; font-weight: 600; display: block; }
+.tip .k { color: var(--ink-2); }
+.tip .row { display: flex; align-items: center; gap: 8px; }
+.tip .ln { width: 12px; height: 2px; border-radius: 1px; flex: none; }
+.tip hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
+
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--ink-2); width: max-content; max-width: 100%; }
+summary:hover { color: var(--ink); }
+.tbl { overflow-x: auto; margin-top: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-weight: 600; color: var(--ink-2); font-size: 12.5px; }
+td.n, th.n { text-align: right; }
+
+.all { display: grid; gap: 14px; }
+.all h2 { font: 600 clamp(20px, 3.2vw, 26px)/1.2 var(--font-display); margin: 0; }
+.all .tbl { max-height: 560px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); margin: 0; }
+.all thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
+th button { all: unset; cursor: pointer; }
+th button[aria-sort]::after { content: " ▾"; color: var(--accent); }
+th button[aria-sort="ascending"]::after { content: " ▴"; }
+.res { display: inline-flex; align-items: center; gap: 6px; }
+
+.method { display: grid; gap: 10px; font-size: 14.5px; color: var(--ink-2); max-width: 70ch; }
+.method h2 { font: 600 20px/1.2 var(--font-display); color: var(--ink); margin: 0; }
+.method p, .method ul { margin: 0; }
+.method ul { padding-left: 18px; display: grid; gap: 6px; }
+footer { font-size: 13px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { .mark { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Super Bowls I to LX · 1966 to 2025 seasons</p>
+    <h1>Does defense win championships?</h1>
+    <p class="lede">Every Super Bowl winner and loser, with where each team ranked in its league during the regular season: offense by points scored, defense by points allowed.</p>
+    <ul class="facts" id="facts"></ul>
+    <ul class="legend-key" aria-label="Colors used in the charts">
+      <li><span class="sw sw--off"></span>Offense (rank in points scored)</li>
+      <li><span class="sw sw--def"></span>Defense (rank in points allowed)</li>
+    </ul>
+  </header>
+
+  <figure id="f1">
+    <p class="fig-num">Chart 1</p>
+    <h2>How did winners and losers rank on each side of the ball?</h2>
+    <p class="read">Average regular-season rank. Further left is better (1 = best in the league).</p>
+    <div class="plot" id="c1"></div>
+    <details><summary>Show as a table</summary><div class="tbl" id="t1"></div></details>
+  </figure>
+
+  <figure id="f2">
+    <p class="fig-num">Chart 2</p>
+    <h2>Where every Super Bowl team ranked</h2>
+    <p class="read">Each dot is one team. Up means a better defense, right means a better offense. Teams above the diagonal ranked higher on defense than on offense.</p>
+    <ul class="legend-key">
+      <li><span class="dot dot--champ"></span>Won the Super Bowl</li>
+      <li><span class="dot dot--loser"></span>Lost the Super Bowl</li>
+      <li>Larger dots mark teams with the same ranks</li>
+    </ul>
+    <div class="plot" id="c2"></div>
+    <details><summary>Show as a table</summary><div class="tbl" id="t2"></div></details>
+  </figure>
+
+  <figure id="f3">
+    <p class="fig-num">Chart 3</p>
+    <h2>In each Super Bowl, how often did the team with the better unit win?</h2>
+    <p class="read">Games where both teams had the same rank are left out. The line marks 50%, a coin flip.</p>
+    <div class="plot" id="c3"></div>
+    <details><summary>Show as a table</summary><div class="tbl" id="t3"></div></details>
+  </figure>
+
+  <figure id="f4">
+    <p class="fig-num">Chart 4</p>
+    <h2>How often did elite offenses and defenses win the Super Bowl?</h2>
+    <p class="read">Share of Super Bowl appearances that ended in a win, by regular-season rank. A team can count on both sides.</p>
+    <div class="plot" id="c4"></div>
+    <details><summary>Show as a table</summary><div class="tbl" id="t4"></div></details>
+  </figure>
+
+  <figure id="f5">
+    <p class="fig-num">Chart 5</p>
+    <h2>Has it changed over time?</h2>
+    <p class="read">Super Bowl winners' average rank by decade. Higher on the chart is better. Leagues were smaller before 1970 (9 to 16 teams), so ranks from the 1960s run lower.</p>
+    <div class="plot" id="c5"></div>
+    <details><summary>Show as a table</summary><div class="tbl" id="t5"></div></details>
+  </figure>
+
+  <section class="all" aria-labelledby="all-title">
+    <h2 id="all-title">All 120 teams</h2>
+    <div class="tbl"><table id="tall"></table></div>
+  </section>
+
+  <section class="method" aria-labelledby="m-title">
+    <h2 id="m-title">How the data was built</h2>
+    <p>Ranks were calculated from the final score of every regular-season game since 1966, then each Super Bowl team was compared with every team in its league that season.</p>
+    <ul>
+      <li>Offense rank is by total points scored (1 = most). Defense rank is by total points allowed (1 = fewest). Playoff games are not counted.</li>
+      <li>Before the 1970 merger the AFL and NFL played separate schedules, so 1966 to 1969 teams are ranked within their own league.</li>
+      <li>Tied teams share the better rank.</li>
+      <li>Sources: <a href="https://github.com/fivethirtyeight/nfl-elo-game" target="_blank" rel="noopener">FiveThirtyEight</a> game results for 1966 to 1998 and <a href="https://github.com/nflverse/nfldata" target="_blank" rel="noopener">nflverse</a> for 1999 to 2025. The two sources agree on every team for the 22 seasons they overlap, and all 60 Super Bowl scores match the official results.</li>
+    </ul>
+  </section>
+
+  <footer>A project by <a href="https://s-milly.github.io" target="_blank" rel="noopener">Shawn Miller</a>.</footer>
+</div>
+
+<script>
+const DATA = [{"super_bowl":"I","season":1966,"result":"Winner","team":"Green Bay Packers","franchise":"GB","opponent":"Kansas City Chiefs","sb_points_for":35,"sb_points_against":10,"league":"NFL","teams_in_league":15,"reg_wins":12,"reg_losses":2,"reg_ties":0,"reg_games":14,"points_scored":335,"points_allowed":163,"points_scored_per_game":23.9,"points_allowed_per_game":11.6,"offense_rank":4,"defense_rank":1,"offense_percentile":0.786,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"I","season":1966,"result":"Loser","team":"Kansas City Chiefs","franchise":"KC","opponent":"Green Bay Packers","sb_points_for":10,"sb_points_against":35,"league":"AFL","teams_in_league":9,"reg_wins":11,"reg_losses":2,"reg_ties":1,"reg_games":14,"points_scored":448,"points_allowed":276,"points_scored_per_game":32.0,"points_allowed_per_game":19.7,"offense_rank":1,"defense_rank":2,"offense_percentile":1.0,"defense_percentile":0.875,"better_unit":"Offense"},{"super_bowl":"II","season":1967,"result":"Winner","team":"Green Bay Packers","franchise":"GB","opponent":"Oakland Raiders","sb_points_for":33,"sb_points_against":14,"league":"NFL","teams_in_league":16,"reg_wins":9,"reg_losses":4,"reg_ties":1,"reg_games":14,"points_scored":332,"points_allowed":209,"points_scored_per_game":23.7,"points_allowed_per_game":14.9,"offense_rank":9,"defense_rank":3,"offense_percentile":0.467,"defense_percentile":0.867,"better_unit":"Defense"},{"super_bowl":"II","season":1967,"result":"Loser","team":"Oakland Raiders","franchise":"LV","opponent":"Green Bay Packers","sb_points_for":14,"sb_points_against":33,"league":"AFL","teams_in_league":9,"reg_wins":13,"reg_losses":1,"reg_ties":0,"reg_games":14,"points_scored":468,"points_allowed":233,"points_scored_per_game":33.4,"points_allowed_per_game":16.6,"offense_rank":1,"defense_rank":2,"offense_percentile":1.0,"defense_percentile":0.875,"better_unit":"Offense"},{"super_bowl":"III","season":1968,"result":"Winner","team":"New York Jets","franchise":"NYJ","opponent":"Baltimore Colts","sb_points_for":16,"sb_points_against":7,"league":"AFL","teams_in_league":10,"reg_wins":11,"reg_losses":3,"reg_ties":0,"reg_games":14,"points_scored":419,"points_allowed":280,"points_scored_per_game":29.9,"points_allowed_per_game":20.0,"offense_rank":2,"defense_rank":4,"offense_percentile":0.889,"defense_percentile":0.667,"better_unit":"Offense"},{"super_bowl":"III","season":1968,"result":"Loser","team":"Baltimore Colts","franchise":"IND","opponent":"New York Jets","sb_points_for":7,"sb_points_against":16,"league":"NFL","teams_in_league":16,"reg_wins":13,"reg_losses":1,"reg_ties":0,"reg_games":14,"points_scored":402,"points_allowed":144,"points_scored_per_game":28.7,"points_allowed_per_game":10.3,"offense_rank":2,"defense_rank":1,"offense_percentile":0.933,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"IV","season":1969,"result":"Winner","team":"Kansas City Chiefs","franchise":"KC","opponent":"Minnesota Vikings","sb_points_for":23,"sb_points_against":7,"league":"AFL","teams_in_league":10,"reg_wins":11,"reg_losses":3,"reg_ties":0,"reg_games":14,"points_scored":359,"points_allowed":177,"points_scored_per_game":25.6,"points_allowed_per_game":12.6,"offense_rank":2,"defense_rank":1,"offense_percentile":0.889,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"IV","season":1969,"result":"Loser","team":"Minnesota Vikings","franchise":"MIN","opponent":"Kansas City Chiefs","sb_points_for":7,"sb_points_against":23,"league":"NFL","teams_in_league":16,"reg_wins":12,"reg_losses":2,"reg_ties":0,"reg_games":14,"points_scored":379,"points_allowed":133,"points_scored_per_game":27.1,"points_allowed_per_game":9.5,"offense_rank":1,"defense_rank":1,"offense_percentile":1.0,"defense_percentile":1.0,"better_unit":"Even"},{"super_bowl":"V","season":1970,"result":"Winner","team":"Baltimore Colts","franchise":"IND","opponent":"Dallas Cowboys","sb_points_for":16,"sb_points_against":13,"league":"NFL","teams_in_league":26,"reg_wins":11,"reg_losses":2,"reg_ties":1,"reg_games":14,"points_scored":321,"points_allowed":234,"points_scored_per_game":22.9,"points_allowed_per_game":16.7,"offense_rank":6,"defense_rank":7,"offense_percentile":0.8,"defense_percentile":0.76,"better_unit":"Offense"},{"super_bowl":"V","season":1970,"result":"Loser","team":"Dallas Cowboys","franchise":"DAL","opponent":"Baltimore Colts","sb_points_for":13,"sb_points_against":16,"league":"NFL","teams_in_league":26,"reg_wins":10,"reg_losses":4,"reg_ties":0,"reg_games":14,"points_scored":299,"points_allowed":221,"points_scored_per_game":21.4,"points_allowed_per_game":15.8,"offense_rank":10,"defense_rank":4,"offense_percentile":0.64,"defense_percentile":0.88,"better_unit":"Defense"},{"super_bowl":"VI","season":1971,"result":"Winner","team":"Dallas Cowboys","franchise":"DAL","opponent":"Miami Dolphins","sb_points_for":24,"sb_points_against":3,"league":"NFL","teams_in_league":26,"reg_wins":11,"reg_losses":3,"reg_ties":0,"reg_games":14,"points_scored":406,"points_allowed":222,"points_scored_per_game":29.0,"points_allowed_per_game":15.9,"offense_rank":1,"defense_rank":7,"offense_percentile":1.0,"defense_percentile":0.76,"better_unit":"Offense"},{"super_bowl":"VI","season":1971,"result":"Loser","team":"Miami Dolphins","franchise":"MIA","opponent":"Dallas Cowboys","sb_points_for":3,"sb_points_against":24,"league":"NFL","teams_in_league":26,"reg_wins":10,"reg_losses":3,"reg_ties":1,"reg_games":14,"points_scored":315,"points_allowed":174,"points_scored_per_game":22.5,"points_allowed_per_game":12.4,"offense_rank":4,"defense_rank":3,"offense_percentile":0.88,"defense_percentile":0.92,"better_unit":"Defense"},{"super_bowl":"VII","season":1972,"result":"Winner","team":"Miami Dolphins","franchise":"MIA","opponent":"Washington Redskins","sb_points_for":14,"sb_points_against":7,"league":"NFL","teams_in_league":26,"reg_wins":14,"reg_losses":0,"reg_ties":0,"reg_games":14,"points_scored":385,"points_allowed":171,"points_scored_per_game":27.5,"points_allowed_per_game":12.2,"offense_rank":1,"defense_rank":1,"offense_percentile":1.0,"defense_percentile":1.0,"better_unit":"Even"},{"super_bowl":"VII","season":1972,"result":"Loser","team":"Washington Redskins","franchise":"WSH","opponent":"Miami Dolphins","sb_points_for":7,"sb_points_against":14,"league":"NFL","teams_in_league":26,"reg_wins":11,"reg_losses":3,"reg_ties":0,"reg_games":14,"points_scored":336,"points_allowed":218,"points_scored_per_game":24.0,"points_allowed_per_game":15.6,"offense_rank":7,"defense_rank":3,"offense_percentile":0.76,"defense_percentile":0.92,"better_unit":"Defense"},{"super_bowl":"VIII","season":1973,"result":"Winner","team":"Miami Dolphins","franchise":"MIA","opponent":"Minnesota Vikings","sb_points_for":24,"sb_points_against":7,"league":"NFL","teams_in_league":26,"reg_wins":12,"reg_losses":2,"reg_ties":0,"reg_games":14,"points_scored":343,"points_allowed":150,"points_scored_per_game":24.5,"points_allowed_per_game":10.7,"offense_rank":5,"defense_rank":1,"offense_percentile":0.84,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"VIII","season":1973,"result":"Loser","team":"Minnesota Vikings","franchise":"MIN","opponent":"Miami Dolphins","sb_points_for":7,"sb_points_against":24,"league":"NFL","teams_in_league":26,"reg_wins":12,"reg_losses":2,"reg_ties":0,"reg_games":14,"points_scored":296,"points_allowed":168,"points_scored_per_game":21.1,"points_allowed_per_game":12.0,"offense_rank":9,"defense_rank":2,"offense_percentile":0.68,"defense_percentile":0.96,"better_unit":"Defense"},{"super_bowl":"IX","season":1974,"result":"Winner","team":"Pittsburgh Steelers","franchise":"PIT","opponent":"Minnesota Vikings","sb_points_for":16,"sb_points_against":6,"league":"NFL","teams_in_league":26,"reg_wins":10,"reg_losses":3,"reg_ties":1,"reg_games":14,"points_scored":305,"points_allowed":189,"points_scored_per_game":21.8,"points_allowed_per_game":13.5,"offense_rank":6,"defense_rank":2,"offense_percentile":0.8,"defense_percentile":0.96,"better_unit":"Defense"},{"super_bowl":"IX","season":1974,"result":"Loser","team":"Minnesota Vikings","franchise":"MIN","opponent":"Pittsburgh Steelers","sb_points_for":6,"sb_points_against":16,"league":"NFL","teams_in_league":26,"reg_wins":10,"reg_losses":4,"reg_ties":0,"reg_games":14,"points_scored":310,"points_allowed":195,"points_scored_per_game":22.1,"points_allowed_per_game":13.9,"offense_rank":5,"defense_rank":3,"offense_percentile":0.84,"defense_percentile":0.92,"better_unit":"Defense"},{"super_bowl":"X","season":1975,"result":"Winner","team":"Pittsburgh Steelers","franchise":"PIT","opponent":"Dallas Cowboys","sb_points_for":21,"sb_points_against":17,"league":"NFL","teams_in_league":26,"reg_wins":12,"reg_losses":2,"reg_ties":0,"reg_games":14,"points_scored":373,"points_allowed":162,"points_scored_per_game":26.6,"points_allowed_per_game":11.6,"offense_rank":5,"defense_rank":2,"offense_percentile":0.84,"defense_percentile":0.96,"better_unit":"Defense"},{"super_bowl":"X","season":1975,"result":"Loser","team":"Dallas Cowboys","franchise":"DAL","opponent":"Pittsburgh Steelers","sb_points_for":17,"sb_points_against":21,"league":"NFL","teams_in_league":26,"reg_wins":10,"reg_losses":4,"reg_ties":0,"reg_games":14,"points_scored":350,"points_allowed":268,"points_scored_per_game":25.0,"points_allowed_per_game":19.1,"offense_rank":8,"defense_rank":9,"offense_percentile":0.72,"defense_percentile":0.68,"better_unit":"Offense"},{"super_bowl":"XI","season":1976,"result":"Winner","team":"Oakland Raiders","franchise":"LV","opponent":"Minnesota Vikings","sb_points_for":32,"sb_points_against":14,"league":"NFL","teams_in_league":28,"reg_wins":13,"reg_losses":1,"reg_ties":0,"reg_games":14,"points_scored":350,"points_allowed":237,"points_scored_per_game":25.0,"points_allowed_per_game":16.9,"offense_rank":4,"defense_rank":12,"offense_percentile":0.889,"defense_percentile":0.593,"better_unit":"Offense"},{"super_bowl":"XI","season":1976,"result":"Loser","team":"Minnesota Vikings","franchise":"MIN","opponent":"Oakland Raiders","sb_points_for":14,"sb_points_against":32,"league":"NFL","teams_in_league":28,"reg_wins":11,"reg_losses":2,"reg_ties":1,"reg_games":14,"points_scored":305,"points_allowed":176,"points_scored_per_game":21.8,"points_allowed_per_game":12.6,"offense_rank":9,"defense_rank":2,"offense_percentile":0.704,"defense_percentile":0.963,"better_unit":"Defense"},{"super_bowl":"XII","season":1977,"result":"Winner","team":"Dallas Cowboys","franchise":"DAL","opponent":"Denver Broncos","sb_points_for":27,"sb_points_against":10,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":2,"reg_ties":0,"reg_games":14,"points_scored":345,"points_allowed":212,"points_scored_per_game":24.6,"points_allowed_per_game":15.1,"offense_rank":2,"defense_rank":8,"offense_percentile":0.963,"defense_percentile":0.741,"better_unit":"Offense"},{"super_bowl":"XII","season":1977,"result":"Loser","team":"Denver Broncos","franchise":"DEN","opponent":"Dallas Cowboys","sb_points_for":10,"sb_points_against":27,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":2,"reg_ties":0,"reg_games":14,"points_scored":274,"points_allowed":148,"points_scored_per_game":19.6,"points_allowed_per_game":10.6,"offense_rank":10,"defense_rank":3,"offense_percentile":0.667,"defense_percentile":0.926,"better_unit":"Defense"},{"super_bowl":"XIII","season":1978,"result":"Winner","team":"Pittsburgh Steelers","franchise":"PIT","opponent":"Dallas Cowboys","sb_points_for":35,"sb_points_against":31,"league":"NFL","teams_in_league":28,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":356,"points_allowed":195,"points_scored_per_game":22.2,"points_allowed_per_game":12.2,"offense_rank":5,"defense_rank":1,"offense_percentile":0.852,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XIII","season":1978,"result":"Loser","team":"Dallas Cowboys","franchise":"DAL","opponent":"Pittsburgh Steelers","sb_points_for":31,"sb_points_against":35,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":384,"points_allowed":208,"points_scored_per_game":24.0,"points_allowed_per_game":13.0,"offense_rank":1,"defense_rank":3,"offense_percentile":1.0,"defense_percentile":0.926,"better_unit":"Offense"},{"super_bowl":"XIV","season":1979,"result":"Winner","team":"Pittsburgh Steelers","franchise":"PIT","opponent":"Los Angeles Rams","sb_points_for":31,"sb_points_against":19,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":416,"points_allowed":262,"points_scored_per_game":26.0,"points_allowed_per_game":16.4,"offense_rank":1,"defense_rank":5,"offense_percentile":1.0,"defense_percentile":0.852,"better_unit":"Offense"},{"super_bowl":"XIV","season":1979,"result":"Loser","team":"Los Angeles Rams","franchise":"LAR","opponent":"Pittsburgh Steelers","sb_points_for":19,"sb_points_against":31,"league":"NFL","teams_in_league":28,"reg_wins":9,"reg_losses":7,"reg_ties":0,"reg_games":16,"points_scored":323,"points_allowed":309,"points_scored_per_game":20.2,"points_allowed_per_game":19.3,"offense_rank":15,"defense_rank":11,"offense_percentile":0.481,"defense_percentile":0.63,"better_unit":"Defense"},{"super_bowl":"XV","season":1980,"result":"Winner","team":"Oakland Raiders","franchise":"LV","opponent":"Philadelphia Eagles","sb_points_for":27,"sb_points_against":10,"league":"NFL","teams_in_league":28,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":364,"points_allowed":306,"points_scored_per_game":22.8,"points_allowed_per_game":19.1,"offense_rank":7,"defense_rank":10,"offense_percentile":0.778,"defense_percentile":0.667,"better_unit":"Offense"},{"super_bowl":"XV","season":1980,"result":"Loser","team":"Philadelphia Eagles","franchise":"PHI","opponent":"Oakland Raiders","sb_points_for":10,"sb_points_against":27,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":384,"points_allowed":222,"points_scored_per_game":24.0,"points_allowed_per_game":13.9,"offense_rank":6,"defense_rank":1,"offense_percentile":0.815,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XVI","season":1981,"result":"Winner","team":"San Francisco 49ers","franchise":"SF","opponent":"Cincinnati Bengals","sb_points_for":26,"sb_points_against":21,"league":"NFL","teams_in_league":28,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":357,"points_allowed":250,"points_scored_per_game":22.3,"points_allowed_per_game":15.6,"offense_rank":7,"defense_rank":2,"offense_percentile":0.778,"defense_percentile":0.963,"better_unit":"Defense"},{"super_bowl":"XVI","season":1981,"result":"Loser","team":"Cincinnati Bengals","franchise":"CIN","opponent":"San Francisco 49ers","sb_points_for":21,"sb_points_against":26,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":421,"points_allowed":304,"points_scored_per_game":26.3,"points_allowed_per_game":19.0,"offense_rank":3,"defense_rank":12,"offense_percentile":0.926,"defense_percentile":0.593,"better_unit":"Offense"},{"super_bowl":"XVII","season":1982,"result":"Winner","team":"Washington Redskins","franchise":"WSH","opponent":"Miami Dolphins","sb_points_for":27,"sb_points_against":17,"league":"NFL","teams_in_league":28,"reg_wins":8,"reg_losses":1,"reg_ties":0,"reg_games":9,"points_scored":190,"points_allowed":128,"points_scored_per_game":21.1,"points_allowed_per_game":14.2,"offense_rank":12,"defense_rank":1,"offense_percentile":0.593,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XVII","season":1982,"result":"Loser","team":"Miami Dolphins","franchise":"MIA","opponent":"Washington Redskins","sb_points_for":17,"sb_points_against":27,"league":"NFL","teams_in_league":28,"reg_wins":7,"reg_losses":2,"reg_ties":0,"reg_games":9,"points_scored":198,"points_allowed":131,"points_scored_per_game":22.0,"points_allowed_per_game":14.6,"offense_rank":10,"defense_rank":2,"offense_percentile":0.667,"defense_percentile":0.963,"better_unit":"Defense"},{"super_bowl":"XVIII","season":1983,"result":"Winner","team":"Los Angeles Raiders","franchise":"LV","opponent":"Washington Redskins","sb_points_for":38,"sb_points_against":9,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":442,"points_allowed":338,"points_scored_per_game":27.6,"points_allowed_per_game":21.1,"offense_rank":3,"defense_rank":13,"offense_percentile":0.926,"defense_percentile":0.556,"better_unit":"Offense"},{"super_bowl":"XVIII","season":1983,"result":"Loser","team":"Washington Redskins","franchise":"WSH","opponent":"Los Angeles Raiders","sb_points_for":9,"sb_points_against":38,"league":"NFL","teams_in_league":28,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":541,"points_allowed":332,"points_scored_per_game":33.8,"points_allowed_per_game":20.8,"offense_rank":1,"defense_rank":11,"offense_percentile":1.0,"defense_percentile":0.63,"better_unit":"Offense"},{"super_bowl":"XIX","season":1984,"result":"Winner","team":"San Francisco 49ers","franchise":"SF","opponent":"Miami Dolphins","sb_points_for":38,"sb_points_against":16,"league":"NFL","teams_in_league":28,"reg_wins":15,"reg_losses":1,"reg_ties":0,"reg_games":16,"points_scored":475,"points_allowed":227,"points_scored_per_game":29.7,"points_allowed_per_game":14.2,"offense_rank":2,"defense_rank":1,"offense_percentile":0.963,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XIX","season":1984,"result":"Loser","team":"Miami Dolphins","franchise":"MIA","opponent":"San Francisco 49ers","sb_points_for":16,"sb_points_against":38,"league":"NFL","teams_in_league":28,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":513,"points_allowed":298,"points_scored_per_game":32.1,"points_allowed_per_game":18.6,"offense_rank":1,"defense_rank":7,"offense_percentile":1.0,"defense_percentile":0.778,"better_unit":"Offense"},{"super_bowl":"XX","season":1985,"result":"Winner","team":"Chicago Bears","franchise":"CHI","opponent":"New England Patriots","sb_points_for":46,"sb_points_against":10,"league":"NFL","teams_in_league":28,"reg_wins":15,"reg_losses":1,"reg_ties":0,"reg_games":16,"points_scored":456,"points_allowed":198,"points_scored_per_game":28.5,"points_allowed_per_game":12.4,"offense_rank":2,"defense_rank":1,"offense_percentile":0.963,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XX","season":1985,"result":"Loser","team":"New England Patriots","franchise":"NE","opponent":"Chicago Bears","sb_points_for":10,"sb_points_against":46,"league":"NFL","teams_in_league":28,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":362,"points_allowed":290,"points_scored_per_game":22.6,"points_allowed_per_game":18.1,"offense_rank":10,"defense_rank":6,"offense_percentile":0.667,"defense_percentile":0.815,"better_unit":"Defense"},{"super_bowl":"XXI","season":1986,"result":"Winner","team":"New York Giants","franchise":"NYG","opponent":"Denver Broncos","sb_points_for":39,"sb_points_against":20,"league":"NFL","teams_in_league":28,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":371,"points_allowed":236,"points_scored_per_game":23.2,"points_allowed_per_game":14.8,"offense_rank":8,"defense_rank":2,"offense_percentile":0.741,"defense_percentile":0.963,"better_unit":"Defense"},{"super_bowl":"XXI","season":1986,"result":"Loser","team":"Denver Broncos","franchise":"DEN","opponent":"New York Giants","sb_points_for":20,"sb_points_against":39,"league":"NFL","teams_in_league":28,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":378,"points_allowed":327,"points_scored_per_game":23.6,"points_allowed_per_game":20.4,"offense_rank":6,"defense_rank":15,"offense_percentile":0.815,"defense_percentile":0.481,"better_unit":"Offense"},{"super_bowl":"XXII","season":1987,"result":"Winner","team":"Washington Redskins","franchise":"WSH","opponent":"Denver Broncos","sb_points_for":42,"sb_points_against":10,"league":"NFL","teams_in_league":28,"reg_wins":11,"reg_losses":4,"reg_ties":0,"reg_games":15,"points_scored":379,"points_allowed":285,"points_scored_per_game":25.3,"points_allowed_per_game":19.0,"offense_rank":4,"defense_rank":6,"offense_percentile":0.889,"defense_percentile":0.815,"better_unit":"Offense"},{"super_bowl":"XXII","season":1987,"result":"Loser","team":"Denver Broncos","franchise":"DEN","opponent":"Washington Redskins","sb_points_for":10,"sb_points_against":42,"league":"NFL","teams_in_league":28,"reg_wins":10,"reg_losses":4,"reg_ties":1,"reg_games":15,"points_scored":379,"points_allowed":288,"points_scored_per_game":25.3,"points_allowed_per_game":19.2,"offense_rank":4,"defense_rank":7,"offense_percentile":0.889,"defense_percentile":0.778,"better_unit":"Offense"},{"super_bowl":"XXIII","season":1988,"result":"Winner","team":"San Francisco 49ers","franchise":"SF","opponent":"Cincinnati Bengals","sb_points_for":20,"sb_points_against":16,"league":"NFL","teams_in_league":28,"reg_wins":10,"reg_losses":6,"reg_ties":0,"reg_games":16,"points_scored":369,"points_allowed":294,"points_scored_per_game":23.1,"points_allowed_per_game":18.4,"offense_rank":7,"defense_rank":8,"offense_percentile":0.778,"defense_percentile":0.741,"better_unit":"Offense"},{"super_bowl":"XXIII","season":1988,"result":"Loser","team":"Cincinnati Bengals","franchise":"CIN","opponent":"San Francisco 49ers","sb_points_for":16,"sb_points_against":20,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":448,"points_allowed":329,"points_scored_per_game":28.0,"points_allowed_per_game":20.6,"offense_rank":1,"defense_rank":16,"offense_percentile":1.0,"defense_percentile":0.444,"better_unit":"Offense"},{"super_bowl":"XXIV","season":1989,"result":"Winner","team":"San Francisco 49ers","franchise":"SF","opponent":"Denver Broncos","sb_points_for":55,"sb_points_against":10,"league":"NFL","teams_in_league":28,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":442,"points_allowed":253,"points_scored_per_game":27.6,"points_allowed_per_game":15.8,"offense_rank":1,"defense_rank":3,"offense_percentile":1.0,"defense_percentile":0.926,"better_unit":"Offense"},{"super_bowl":"XXIV","season":1989,"result":"Loser","team":"Denver Broncos","franchise":"DEN","opponent":"San Francisco 49ers","sb_points_for":10,"sb_points_against":55,"league":"NFL","teams_in_league":28,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":362,"points_allowed":226,"points_scored_per_game":22.6,"points_allowed_per_game":14.1,"offense_rank":8,"defense_rank":1,"offense_percentile":0.741,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XXV","season":1990,"result":"Winner","team":"New York Giants","franchise":"NYG","opponent":"Buffalo Bills","sb_points_for":20,"sb_points_against":19,"league":"NFL","teams_in_league":28,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":335,"points_allowed":211,"points_scored_per_game":20.9,"points_allowed_per_game":13.2,"offense_rank":15,"defense_rank":1,"offense_percentile":0.481,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XXV","season":1990,"result":"Loser","team":"Buffalo Bills","franchise":"BUF","opponent":"New York Giants","sb_points_for":19,"sb_points_against":20,"league":"NFL","teams_in_league":28,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":428,"points_allowed":263,"points_scored_per_game":26.8,"points_allowed_per_game":16.4,"offense_rank":1,"defense_rank":6,"offense_percentile":1.0,"defense_percentile":0.815,"better_unit":"Offense"},{"super_bowl":"XXVI","season":1991,"result":"Winner","team":"Washington Redskins","franchise":"WSH","opponent":"Buffalo Bills","sb_points_for":37,"sb_points_against":24,"league":"NFL","teams_in_league":28,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":485,"points_allowed":224,"points_scored_per_game":30.3,"points_allowed_per_game":14.0,"offense_rank":1,"defense_rank":2,"offense_percentile":1.0,"defense_percentile":0.963,"better_unit":"Offense"},{"super_bowl":"XXVI","season":1991,"result":"Loser","team":"Buffalo Bills","franchise":"BUF","opponent":"Washington Redskins","sb_points_for":24,"sb_points_against":37,"league":"NFL","teams_in_league":28,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":458,"points_allowed":318,"points_scored_per_game":28.6,"points_allowed_per_game":19.9,"offense_rank":2,"defense_rank":19,"offense_percentile":0.963,"defense_percentile":0.333,"better_unit":"Offense"},{"super_bowl":"XXVII","season":1992,"result":"Winner","team":"Dallas Cowboys","franchise":"DAL","opponent":"Buffalo Bills","sb_points_for":52,"sb_points_against":17,"league":"NFL","teams_in_league":28,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":409,"points_allowed":243,"points_scored_per_game":25.6,"points_allowed_per_game":15.2,"offense_rank":2,"defense_rank":5,"offense_percentile":0.963,"defense_percentile":0.852,"better_unit":"Offense"},{"super_bowl":"XXVII","season":1992,"result":"Loser","team":"Buffalo Bills","franchise":"BUF","opponent":"Dallas Cowboys","sb_points_for":17,"sb_points_against":52,"league":"NFL","teams_in_league":28,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":381,"points_allowed":283,"points_scored_per_game":23.8,"points_allowed_per_game":17.7,"offense_rank":3,"defense_rank":14,"offense_percentile":0.926,"defense_percentile":0.519,"better_unit":"Offense"},{"super_bowl":"XXVIII","season":1993,"result":"Winner","team":"Dallas Cowboys","franchise":"DAL","opponent":"Buffalo Bills","sb_points_for":30,"sb_points_against":13,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":376,"points_allowed":229,"points_scored_per_game":23.5,"points_allowed_per_game":14.3,"offense_rank":2,"defense_rank":2,"offense_percentile":0.963,"defense_percentile":0.963,"better_unit":"Even"},{"super_bowl":"XXVIII","season":1993,"result":"Loser","team":"Buffalo Bills","franchise":"BUF","opponent":"Dallas Cowboys","sb_points_for":13,"sb_points_against":30,"league":"NFL","teams_in_league":28,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":329,"points_allowed":242,"points_scored_per_game":20.6,"points_allowed_per_game":15.1,"offense_rank":7,"defense_rank":5,"offense_percentile":0.778,"defense_percentile":0.852,"better_unit":"Defense"},{"super_bowl":"XXIX","season":1994,"result":"Winner","team":"San Francisco 49ers","franchise":"SF","opponent":"San Diego Chargers","sb_points_for":49,"sb_points_against":26,"league":"NFL","teams_in_league":28,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":505,"points_allowed":296,"points_scored_per_game":31.6,"points_allowed_per_game":18.5,"offense_rank":1,"defense_rank":6,"offense_percentile":1.0,"defense_percentile":0.815,"better_unit":"Offense"},{"super_bowl":"XXIX","season":1994,"result":"Loser","team":"San Diego Chargers","franchise":"LAC","opponent":"San Francisco 49ers","sb_points_for":26,"sb_points_against":49,"league":"NFL","teams_in_league":28,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":381,"points_allowed":306,"points_scored_per_game":23.8,"points_allowed_per_game":19.1,"offense_rank":5,"defense_rank":9,"offense_percentile":0.852,"defense_percentile":0.704,"better_unit":"Offense"},{"super_bowl":"XXX","season":1995,"result":"Winner","team":"Dallas Cowboys","franchise":"DAL","opponent":"Pittsburgh Steelers","sb_points_for":27,"sb_points_against":17,"league":"NFL","teams_in_league":30,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":435,"points_allowed":291,"points_scored_per_game":27.2,"points_allowed_per_game":18.2,"offense_rank":3,"defense_rank":3,"offense_percentile":0.931,"defense_percentile":0.931,"better_unit":"Even"},{"super_bowl":"XXX","season":1995,"result":"Loser","team":"Pittsburgh Steelers","franchise":"PIT","opponent":"Dallas Cowboys","sb_points_for":17,"sb_points_against":27,"league":"NFL","teams_in_league":30,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":407,"points_allowed":327,"points_scored_per_game":25.4,"points_allowed_per_game":20.4,"offense_rank":5,"defense_rank":9,"offense_percentile":0.862,"defense_percentile":0.724,"better_unit":"Offense"},{"super_bowl":"XXXI","season":1996,"result":"Winner","team":"Green Bay Packers","franchise":"GB","opponent":"New England Patriots","sb_points_for":35,"sb_points_against":21,"league":"NFL","teams_in_league":30,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":456,"points_allowed":210,"points_scored_per_game":28.5,"points_allowed_per_game":13.1,"offense_rank":1,"defense_rank":1,"offense_percentile":1.0,"defense_percentile":1.0,"better_unit":"Even"},{"super_bowl":"XXXI","season":1996,"result":"Loser","team":"New England Patriots","franchise":"NE","opponent":"Green Bay Packers","sb_points_for":21,"sb_points_against":35,"league":"NFL","teams_in_league":30,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":418,"points_allowed":313,"points_scored_per_game":26.1,"points_allowed_per_game":19.6,"offense_rank":2,"defense_rank":14,"offense_percentile":0.966,"defense_percentile":0.552,"better_unit":"Offense"},{"super_bowl":"XXXII","season":1997,"result":"Winner","team":"Denver Broncos","franchise":"DEN","opponent":"Green Bay Packers","sb_points_for":31,"sb_points_against":24,"league":"NFL","teams_in_league":30,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":472,"points_allowed":287,"points_scored_per_game":29.5,"points_allowed_per_game":17.9,"offense_rank":1,"defense_rank":6,"offense_percentile":1.0,"defense_percentile":0.828,"better_unit":"Offense"},{"super_bowl":"XXXII","season":1997,"result":"Loser","team":"Green Bay Packers","franchise":"GB","opponent":"Denver Broncos","sb_points_for":24,"sb_points_against":31,"league":"NFL","teams_in_league":30,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":422,"points_allowed":282,"points_scored_per_game":26.4,"points_allowed_per_game":17.6,"offense_rank":2,"defense_rank":5,"offense_percentile":0.966,"defense_percentile":0.862,"better_unit":"Offense"},{"super_bowl":"XXXIII","season":1998,"result":"Winner","team":"Denver Broncos","franchise":"DEN","opponent":"Atlanta Falcons","sb_points_for":34,"sb_points_against":19,"league":"NFL","teams_in_league":30,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":501,"points_allowed":309,"points_scored_per_game":31.3,"points_allowed_per_game":19.3,"offense_rank":2,"defense_rank":8,"offense_percentile":0.966,"defense_percentile":0.759,"better_unit":"Offense"},{"super_bowl":"XXXIII","season":1998,"result":"Loser","team":"Atlanta Falcons","franchise":"ATL","opponent":"Denver Broncos","sb_points_for":19,"sb_points_against":34,"league":"NFL","teams_in_league":30,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":442,"points_allowed":289,"points_scored_per_game":27.6,"points_allowed_per_game":18.1,"offense_rank":4,"defense_rank":4,"offense_percentile":0.897,"defense_percentile":0.897,"better_unit":"Even"},{"super_bowl":"XXXIV","season":1999,"result":"Winner","team":"St. Louis Rams","franchise":"LAR","opponent":"Tennessee Titans","sb_points_for":23,"sb_points_against":16,"league":"NFL","teams_in_league":31,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":526,"points_allowed":242,"points_scored_per_game":32.9,"points_allowed_per_game":15.1,"offense_rank":1,"defense_rank":4,"offense_percentile":1.0,"defense_percentile":0.9,"better_unit":"Offense"},{"super_bowl":"XXXIV","season":1999,"result":"Loser","team":"Tennessee Titans","franchise":"TEN","opponent":"St. Louis Rams","sb_points_for":16,"sb_points_against":23,"league":"NFL","teams_in_league":31,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":392,"points_allowed":324,"points_scored_per_game":24.5,"points_allowed_per_game":20.2,"offense_rank":7,"defense_rank":15,"offense_percentile":0.8,"defense_percentile":0.533,"better_unit":"Offense"},{"super_bowl":"XXXV","season":2000,"result":"Winner","team":"Baltimore Ravens","franchise":"BAL","opponent":"New York Giants","sb_points_for":34,"sb_points_against":7,"league":"NFL","teams_in_league":31,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":333,"points_allowed":165,"points_scored_per_game":20.8,"points_allowed_per_game":10.3,"offense_rank":14,"defense_rank":1,"offense_percentile":0.567,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XXXV","season":2000,"result":"Loser","team":"New York Giants","franchise":"NYG","opponent":"Baltimore Ravens","sb_points_for":7,"sb_points_against":34,"league":"NFL","teams_in_league":31,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":328,"points_allowed":246,"points_scored_per_game":20.5,"points_allowed_per_game":15.4,"offense_rank":15,"defense_rank":5,"offense_percentile":0.533,"defense_percentile":0.867,"better_unit":"Defense"},{"super_bowl":"XXXVI","season":2001,"result":"Winner","team":"New England Patriots","franchise":"NE","opponent":"St. Louis Rams","sb_points_for":20,"sb_points_against":17,"league":"NFL","teams_in_league":31,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":371,"points_allowed":272,"points_scored_per_game":23.2,"points_allowed_per_game":17.0,"offense_rank":6,"defense_rank":6,"offense_percentile":0.833,"defense_percentile":0.833,"better_unit":"Even"},{"super_bowl":"XXXVI","season":2001,"result":"Loser","team":"St. Louis Rams","franchise":"LAR","opponent":"New England Patriots","sb_points_for":17,"sb_points_against":20,"league":"NFL","teams_in_league":31,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":503,"points_allowed":273,"points_scored_per_game":31.4,"points_allowed_per_game":17.1,"offense_rank":1,"defense_rank":7,"offense_percentile":1.0,"defense_percentile":0.8,"better_unit":"Offense"},{"super_bowl":"XXXVII","season":2002,"result":"Winner","team":"Tampa Bay Buccaneers","franchise":"TB","opponent":"Oakland Raiders","sb_points_for":48,"sb_points_against":21,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":346,"points_allowed":196,"points_scored_per_game":21.6,"points_allowed_per_game":12.2,"offense_rank":18,"defense_rank":1,"offense_percentile":0.452,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XXXVII","season":2002,"result":"Loser","team":"Oakland Raiders","franchise":"LV","opponent":"Tampa Bay Buccaneers","sb_points_for":21,"sb_points_against":48,"league":"NFL","teams_in_league":32,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":450,"points_allowed":304,"points_scored_per_game":28.1,"points_allowed_per_game":19.0,"offense_rank":2,"defense_rank":6,"offense_percentile":0.968,"defense_percentile":0.839,"better_unit":"Offense"},{"super_bowl":"XXXVIII","season":2003,"result":"Winner","team":"New England Patriots","franchise":"NE","opponent":"Carolina Panthers","sb_points_for":32,"sb_points_against":29,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":348,"points_allowed":238,"points_scored_per_game":21.8,"points_allowed_per_game":14.9,"offense_rank":12,"defense_rank":1,"offense_percentile":0.645,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XXXVIII","season":2003,"result":"Loser","team":"Carolina Panthers","franchise":"CAR","opponent":"New England Patriots","sb_points_for":29,"sb_points_against":32,"league":"NFL","teams_in_league":32,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":325,"points_allowed":304,"points_scored_per_game":20.3,"points_allowed_per_game":19.0,"offense_rank":15,"defense_rank":10,"offense_percentile":0.548,"defense_percentile":0.71,"better_unit":"Defense"},{"super_bowl":"XXXIX","season":2004,"result":"Winner","team":"New England Patriots","franchise":"NE","opponent":"Philadelphia Eagles","sb_points_for":24,"sb_points_against":21,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":437,"points_allowed":260,"points_scored_per_game":27.3,"points_allowed_per_game":16.2,"offense_rank":4,"defense_rank":2,"offense_percentile":0.903,"defense_percentile":0.968,"better_unit":"Defense"},{"super_bowl":"XXXIX","season":2004,"result":"Loser","team":"Philadelphia Eagles","franchise":"PHI","opponent":"New England Patriots","sb_points_for":21,"sb_points_against":24,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":386,"points_allowed":260,"points_scored_per_game":24.1,"points_allowed_per_game":16.2,"offense_rank":8,"defense_rank":2,"offense_percentile":0.774,"defense_percentile":0.968,"better_unit":"Defense"},{"super_bowl":"XL","season":2005,"result":"Winner","team":"Pittsburgh Steelers","franchise":"PIT","opponent":"Seattle Seahawks","sb_points_for":21,"sb_points_against":10,"league":"NFL","teams_in_league":32,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":389,"points_allowed":258,"points_scored_per_game":24.3,"points_allowed_per_game":16.1,"offense_rank":9,"defense_rank":3,"offense_percentile":0.742,"defense_percentile":0.935,"better_unit":"Defense"},{"super_bowl":"XL","season":2005,"result":"Loser","team":"Seattle Seahawks","franchise":"SEA","opponent":"Pittsburgh Steelers","sb_points_for":10,"sb_points_against":21,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":452,"points_allowed":271,"points_scored_per_game":28.2,"points_allowed_per_game":16.9,"offense_rank":1,"defense_rank":7,"offense_percentile":1.0,"defense_percentile":0.806,"better_unit":"Offense"},{"super_bowl":"XLI","season":2006,"result":"Winner","team":"Indianapolis Colts","franchise":"IND","opponent":"Chicago Bears","sb_points_for":29,"sb_points_against":17,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":427,"points_allowed":360,"points_scored_per_game":26.7,"points_allowed_per_game":22.5,"offense_rank":2,"defense_rank":23,"offense_percentile":0.968,"defense_percentile":0.29,"better_unit":"Offense"},{"super_bowl":"XLI","season":2006,"result":"Loser","team":"Chicago Bears","franchise":"CHI","opponent":"Indianapolis Colts","sb_points_for":17,"sb_points_against":29,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":427,"points_allowed":255,"points_scored_per_game":26.7,"points_allowed_per_game":15.9,"offense_rank":2,"defense_rank":3,"offense_percentile":0.968,"defense_percentile":0.935,"better_unit":"Offense"},{"super_bowl":"XLII","season":2007,"result":"Winner","team":"New York Giants","franchise":"NYG","opponent":"New England Patriots","sb_points_for":17,"sb_points_against":14,"league":"NFL","teams_in_league":32,"reg_wins":10,"reg_losses":6,"reg_ties":0,"reg_games":16,"points_scored":373,"points_allowed":351,"points_scored_per_game":23.3,"points_allowed_per_game":21.9,"offense_rank":14,"defense_rank":17,"offense_percentile":0.581,"defense_percentile":0.484,"better_unit":"Offense"},{"super_bowl":"XLII","season":2007,"result":"Loser","team":"New England Patriots","franchise":"NE","opponent":"New York Giants","sb_points_for":14,"sb_points_against":17,"league":"NFL","teams_in_league":32,"reg_wins":16,"reg_losses":0,"reg_ties":0,"reg_games":16,"points_scored":589,"points_allowed":274,"points_scored_per_game":36.8,"points_allowed_per_game":17.1,"offense_rank":1,"defense_rank":4,"offense_percentile":1.0,"defense_percentile":0.903,"better_unit":"Offense"},{"super_bowl":"XLIII","season":2008,"result":"Winner","team":"Pittsburgh Steelers","franchise":"PIT","opponent":"Arizona Cardinals","sb_points_for":27,"sb_points_against":23,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":347,"points_allowed":223,"points_scored_per_game":21.7,"points_allowed_per_game":13.9,"offense_rank":20,"defense_rank":1,"offense_percentile":0.387,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XLIII","season":2008,"result":"Loser","team":"Arizona Cardinals","franchise":"ARI","opponent":"Pittsburgh Steelers","sb_points_for":23,"sb_points_against":27,"league":"NFL","teams_in_league":32,"reg_wins":9,"reg_losses":7,"reg_ties":0,"reg_games":16,"points_scored":427,"points_allowed":426,"points_scored_per_game":26.7,"points_allowed_per_game":26.6,"offense_rank":3,"defense_rank":28,"offense_percentile":0.935,"defense_percentile":0.129,"better_unit":"Offense"},{"super_bowl":"XLIV","season":2009,"result":"Winner","team":"New Orleans Saints","franchise":"NO","opponent":"Indianapolis Colts","sb_points_for":31,"sb_points_against":17,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":510,"points_allowed":341,"points_scored_per_game":31.9,"points_allowed_per_game":21.3,"offense_rank":1,"defense_rank":20,"offense_percentile":1.0,"defense_percentile":0.387,"better_unit":"Offense"},{"super_bowl":"XLIV","season":2009,"result":"Loser","team":"Indianapolis Colts","franchise":"IND","opponent":"New Orleans Saints","sb_points_for":17,"sb_points_against":31,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":416,"points_allowed":307,"points_scored_per_game":26.0,"points_allowed_per_game":19.2,"offense_rank":7,"defense_rank":8,"offense_percentile":0.806,"defense_percentile":0.774,"better_unit":"Offense"},{"super_bowl":"XLV","season":2010,"result":"Winner","team":"Green Bay Packers","franchise":"GB","opponent":"Pittsburgh Steelers","sb_points_for":31,"sb_points_against":25,"league":"NFL","teams_in_league":32,"reg_wins":10,"reg_losses":6,"reg_ties":0,"reg_games":16,"points_scored":388,"points_allowed":240,"points_scored_per_game":24.2,"points_allowed_per_game":15.0,"offense_rank":10,"defense_rank":2,"offense_percentile":0.71,"defense_percentile":0.968,"better_unit":"Defense"},{"super_bowl":"XLV","season":2010,"result":"Loser","team":"Pittsburgh Steelers","franchise":"PIT","opponent":"Green Bay Packers","sb_points_for":25,"sb_points_against":31,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":375,"points_allowed":232,"points_scored_per_game":23.4,"points_allowed_per_game":14.5,"offense_rank":12,"defense_rank":1,"offense_percentile":0.645,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XLVI","season":2011,"result":"Winner","team":"New York Giants","franchise":"NYG","opponent":"New England Patriots","sb_points_for":21,"sb_points_against":17,"league":"NFL","teams_in_league":32,"reg_wins":9,"reg_losses":7,"reg_ties":0,"reg_games":16,"points_scored":394,"points_allowed":400,"points_scored_per_game":24.6,"points_allowed_per_game":25.0,"offense_rank":9,"defense_rank":25,"offense_percentile":0.742,"defense_percentile":0.226,"better_unit":"Offense"},{"super_bowl":"XLVI","season":2011,"result":"Loser","team":"New England Patriots","franchise":"NE","opponent":"New York Giants","sb_points_for":17,"sb_points_against":21,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":513,"points_allowed":342,"points_scored_per_game":32.1,"points_allowed_per_game":21.4,"offense_rank":3,"defense_rank":15,"offense_percentile":0.935,"defense_percentile":0.548,"better_unit":"Offense"},{"super_bowl":"XLVII","season":2012,"result":"Winner","team":"Baltimore Ravens","franchise":"BAL","opponent":"San Francisco 49ers","sb_points_for":34,"sb_points_against":31,"league":"NFL","teams_in_league":32,"reg_wins":10,"reg_losses":6,"reg_ties":0,"reg_games":16,"points_scored":398,"points_allowed":344,"points_scored_per_game":24.9,"points_allowed_per_game":21.5,"offense_rank":10,"defense_rank":12,"offense_percentile":0.71,"defense_percentile":0.645,"better_unit":"Offense"},{"super_bowl":"XLVII","season":2012,"result":"Loser","team":"San Francisco 49ers","franchise":"SF","opponent":"Baltimore Ravens","sb_points_for":31,"sb_points_against":34,"league":"NFL","teams_in_league":32,"reg_wins":11,"reg_losses":4,"reg_ties":1,"reg_games":16,"points_scored":397,"points_allowed":273,"points_scored_per_game":24.8,"points_allowed_per_game":17.1,"offense_rank":11,"defense_rank":2,"offense_percentile":0.677,"defense_percentile":0.968,"better_unit":"Defense"},{"super_bowl":"XLVIII","season":2013,"result":"Winner","team":"Seattle Seahawks","franchise":"SEA","opponent":"Denver Broncos","sb_points_for":43,"sb_points_against":8,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":417,"points_allowed":231,"points_scored_per_game":26.1,"points_allowed_per_game":14.4,"offense_rank":8,"defense_rank":1,"offense_percentile":0.774,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"XLVIII","season":2013,"result":"Loser","team":"Denver Broncos","franchise":"DEN","opponent":"Seattle Seahawks","sb_points_for":8,"sb_points_against":43,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":606,"points_allowed":399,"points_scored_per_game":37.9,"points_allowed_per_game":24.9,"offense_rank":1,"defense_rank":22,"offense_percentile":1.0,"defense_percentile":0.323,"better_unit":"Offense"},{"super_bowl":"XLIX","season":2014,"result":"Winner","team":"New England Patriots","franchise":"NE","opponent":"Seattle Seahawks","sb_points_for":28,"sb_points_against":24,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":468,"points_allowed":313,"points_scored_per_game":29.2,"points_allowed_per_game":19.6,"offense_rank":4,"defense_rank":8,"offense_percentile":0.903,"defense_percentile":0.774,"better_unit":"Offense"},{"super_bowl":"XLIX","season":2014,"result":"Loser","team":"Seattle Seahawks","franchise":"SEA","opponent":"New England Patriots","sb_points_for":24,"sb_points_against":28,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":394,"points_allowed":254,"points_scored_per_game":24.6,"points_allowed_per_game":15.9,"offense_rank":10,"defense_rank":1,"offense_percentile":0.71,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"50","season":2015,"result":"Winner","team":"Denver Broncos","franchise":"DEN","opponent":"Carolina Panthers","sb_points_for":24,"sb_points_against":10,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":355,"points_allowed":296,"points_scored_per_game":22.2,"points_allowed_per_game":18.5,"offense_rank":19,"defense_rank":4,"offense_percentile":0.419,"defense_percentile":0.903,"better_unit":"Defense"},{"super_bowl":"50","season":2015,"result":"Loser","team":"Carolina Panthers","franchise":"CAR","opponent":"Denver Broncos","sb_points_for":10,"sb_points_against":24,"league":"NFL","teams_in_league":32,"reg_wins":15,"reg_losses":1,"reg_ties":0,"reg_games":16,"points_scored":500,"points_allowed":308,"points_scored_per_game":31.2,"points_allowed_per_game":19.2,"offense_rank":1,"defense_rank":6,"offense_percentile":1.0,"defense_percentile":0.839,"better_unit":"Offense"},{"super_bowl":"LI","season":2016,"result":"Winner","team":"New England Patriots","franchise":"NE","opponent":"Atlanta Falcons","sb_points_for":34,"sb_points_against":28,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":441,"points_allowed":250,"points_scored_per_game":27.6,"points_allowed_per_game":15.6,"offense_rank":3,"defense_rank":1,"offense_percentile":0.935,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"LI","season":2016,"result":"Loser","team":"Atlanta Falcons","franchise":"ATL","opponent":"New England Patriots","sb_points_for":28,"sb_points_against":34,"league":"NFL","teams_in_league":32,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":540,"points_allowed":406,"points_scored_per_game":33.8,"points_allowed_per_game":25.4,"offense_rank":1,"defense_rank":27,"offense_percentile":1.0,"defense_percentile":0.161,"better_unit":"Offense"},{"super_bowl":"LII","season":2017,"result":"Winner","team":"Philadelphia Eagles","franchise":"PHI","opponent":"New England Patriots","sb_points_for":41,"sb_points_against":33,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":457,"points_allowed":295,"points_scored_per_game":28.6,"points_allowed_per_game":18.4,"offense_rank":3,"defense_rank":4,"offense_percentile":0.935,"defense_percentile":0.903,"better_unit":"Offense"},{"super_bowl":"LII","season":2017,"result":"Loser","team":"New England Patriots","franchise":"NE","opponent":"Philadelphia Eagles","sb_points_for":33,"sb_points_against":41,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":458,"points_allowed":296,"points_scored_per_game":28.6,"points_allowed_per_game":18.5,"offense_rank":2,"defense_rank":5,"offense_percentile":0.968,"defense_percentile":0.871,"better_unit":"Offense"},{"super_bowl":"LIII","season":2018,"result":"Winner","team":"New England Patriots","franchise":"NE","opponent":"Los Angeles Rams","sb_points_for":13,"sb_points_against":3,"league":"NFL","teams_in_league":32,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":436,"points_allowed":325,"points_scored_per_game":27.2,"points_allowed_per_game":20.3,"offense_rank":4,"defense_rank":7,"offense_percentile":0.903,"defense_percentile":0.806,"better_unit":"Offense"},{"super_bowl":"LIII","season":2018,"result":"Loser","team":"Los Angeles Rams","franchise":"LAR","opponent":"New England Patriots","sb_points_for":3,"sb_points_against":13,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":527,"points_allowed":384,"points_scored_per_game":32.9,"points_allowed_per_game":24.0,"offense_rank":2,"defense_rank":20,"offense_percentile":0.968,"defense_percentile":0.387,"better_unit":"Offense"},{"super_bowl":"LIV","season":2019,"result":"Winner","team":"Kansas City Chiefs","franchise":"KC","opponent":"San Francisco 49ers","sb_points_for":31,"sb_points_against":20,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":4,"reg_ties":0,"reg_games":16,"points_scored":451,"points_allowed":308,"points_scored_per_game":28.2,"points_allowed_per_game":19.2,"offense_rank":5,"defense_rank":7,"offense_percentile":0.871,"defense_percentile":0.806,"better_unit":"Offense"},{"super_bowl":"LIV","season":2019,"result":"Loser","team":"San Francisco 49ers","franchise":"SF","opponent":"Kansas City Chiefs","sb_points_for":20,"sb_points_against":31,"league":"NFL","teams_in_league":32,"reg_wins":13,"reg_losses":3,"reg_ties":0,"reg_games":16,"points_scored":479,"points_allowed":310,"points_scored_per_game":29.9,"points_allowed_per_game":19.4,"offense_rank":2,"defense_rank":8,"offense_percentile":0.968,"defense_percentile":0.774,"better_unit":"Offense"},{"super_bowl":"LV","season":2020,"result":"Winner","team":"Tampa Bay Buccaneers","franchise":"TB","opponent":"Kansas City Chiefs","sb_points_for":31,"sb_points_against":9,"league":"NFL","teams_in_league":32,"reg_wins":11,"reg_losses":5,"reg_ties":0,"reg_games":16,"points_scored":492,"points_allowed":355,"points_scored_per_game":30.8,"points_allowed_per_game":22.2,"offense_rank":3,"defense_rank":8,"offense_percentile":0.935,"defense_percentile":0.774,"better_unit":"Offense"},{"super_bowl":"LV","season":2020,"result":"Loser","team":"Kansas City Chiefs","franchise":"KC","opponent":"Tampa Bay Buccaneers","sb_points_for":9,"sb_points_against":31,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":2,"reg_ties":0,"reg_games":16,"points_scored":473,"points_allowed":362,"points_scored_per_game":29.6,"points_allowed_per_game":22.6,"offense_rank":6,"defense_rank":10,"offense_percentile":0.839,"defense_percentile":0.71,"better_unit":"Offense"},{"super_bowl":"LVI","season":2021,"result":"Winner","team":"Los Angeles Rams","franchise":"LAR","opponent":"Cincinnati Bengals","sb_points_for":23,"sb_points_against":20,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":5,"reg_ties":0,"reg_games":17,"points_scored":460,"points_allowed":372,"points_scored_per_game":27.1,"points_allowed_per_game":21.9,"offense_rank":7,"defense_rank":15,"offense_percentile":0.806,"defense_percentile":0.548,"better_unit":"Offense"},{"super_bowl":"LVI","season":2021,"result":"Loser","team":"Cincinnati Bengals","franchise":"CIN","opponent":"Los Angeles Rams","sb_points_for":20,"sb_points_against":23,"league":"NFL","teams_in_league":32,"reg_wins":10,"reg_losses":7,"reg_ties":0,"reg_games":17,"points_scored":460,"points_allowed":376,"points_scored_per_game":27.1,"points_allowed_per_game":22.1,"offense_rank":7,"defense_rank":17,"offense_percentile":0.806,"defense_percentile":0.484,"better_unit":"Offense"},{"super_bowl":"LVII","season":2022,"result":"Winner","team":"Kansas City Chiefs","franchise":"KC","opponent":"Philadelphia Eagles","sb_points_for":38,"sb_points_against":35,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":3,"reg_ties":0,"reg_games":17,"points_scored":496,"points_allowed":369,"points_scored_per_game":29.2,"points_allowed_per_game":21.7,"offense_rank":1,"defense_rank":16,"offense_percentile":1.0,"defense_percentile":0.516,"better_unit":"Offense"},{"super_bowl":"LVII","season":2022,"result":"Loser","team":"Philadelphia Eagles","franchise":"PHI","opponent":"Kansas City Chiefs","sb_points_for":35,"sb_points_against":38,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":3,"reg_ties":0,"reg_games":17,"points_scored":477,"points_allowed":344,"points_scored_per_game":28.1,"points_allowed_per_game":20.2,"offense_rank":2,"defense_rank":8,"offense_percentile":0.968,"defense_percentile":0.774,"better_unit":"Offense"},{"super_bowl":"LVIII","season":2023,"result":"Winner","team":"Kansas City Chiefs","franchise":"KC","opponent":"San Francisco 49ers","sb_points_for":25,"sb_points_against":22,"league":"NFL","teams_in_league":32,"reg_wins":11,"reg_losses":6,"reg_ties":0,"reg_games":17,"points_scored":371,"points_allowed":294,"points_scored_per_game":21.8,"points_allowed_per_game":17.3,"offense_rank":15,"defense_rank":2,"offense_percentile":0.548,"defense_percentile":0.968,"better_unit":"Defense"},{"super_bowl":"LVIII","season":2023,"result":"Loser","team":"San Francisco 49ers","franchise":"SF","opponent":"Kansas City Chiefs","sb_points_for":22,"sb_points_against":25,"league":"NFL","teams_in_league":32,"reg_wins":12,"reg_losses":5,"reg_ties":0,"reg_games":17,"points_scored":491,"points_allowed":298,"points_scored_per_game":28.9,"points_allowed_per_game":17.5,"offense_rank":3,"defense_rank":3,"offense_percentile":0.935,"defense_percentile":0.935,"better_unit":"Even"},{"super_bowl":"LIX","season":2024,"result":"Winner","team":"Philadelphia Eagles","franchise":"PHI","opponent":"Kansas City Chiefs","sb_points_for":40,"sb_points_against":22,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":3,"reg_ties":0,"reg_games":17,"points_scored":463,"points_allowed":303,"points_scored_per_game":27.2,"points_allowed_per_game":17.8,"offense_rank":7,"defense_rank":2,"offense_percentile":0.806,"defense_percentile":0.968,"better_unit":"Defense"},{"super_bowl":"LIX","season":2024,"result":"Loser","team":"Kansas City Chiefs","franchise":"KC","opponent":"Philadelphia Eagles","sb_points_for":22,"sb_points_against":40,"league":"NFL","teams_in_league":32,"reg_wins":15,"reg_losses":2,"reg_ties":0,"reg_games":17,"points_scored":385,"points_allowed":326,"points_scored_per_game":22.6,"points_allowed_per_game":19.2,"offense_rank":15,"defense_rank":4,"offense_percentile":0.548,"defense_percentile":0.903,"better_unit":"Defense"},{"super_bowl":"LX","season":2025,"result":"Winner","team":"Seattle Seahawks","franchise":"SEA","opponent":"New England Patriots","sb_points_for":29,"sb_points_against":13,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":3,"reg_ties":0,"reg_games":17,"points_scored":483,"points_allowed":292,"points_scored_per_game":28.4,"points_allowed_per_game":17.2,"offense_rank":3,"defense_rank":1,"offense_percentile":0.935,"defense_percentile":1.0,"better_unit":"Defense"},{"super_bowl":"LX","season":2025,"result":"Loser","team":"New England Patriots","franchise":"NE","opponent":"Seattle Seahawks","sb_points_for":13,"sb_points_against":29,"league":"NFL","teams_in_league":32,"reg_wins":14,"reg_losses":3,"reg_ties":0,"reg_games":17,"points_scored":490,"points_allowed":320,"points_scored_per_game":28.8,"points_allowed_per_game":18.8,"offense_rank":2,"defense_rank":4,"offense_percentile":0.968,"defense_percentile":0.903,"better_unit":"Offense"}];
+
+const NS = "http://www.w3.org/2000/svg";
+const W = r => r.result === "Winner";
+const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
+const median = a => { const s = [...a].sort((x, y) => x - y), m = s.length / 2; return s.length % 2 ? s[m - .5] : (s[m - 1] + s[m]) / 2; };
+const fmt1 = x => x.toFixed(1);
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const decade = s => Math.floor(s / 10) * 10;
+
+function el(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, attrs = {}) { const t = el("text", { x, y, ...attrs }, parent); t.textContent = s; return t; }
+function html(tag, text, cls) { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; }
+
+function table(host, head, rows, numericCols = []) {
+  const t = document.createElement("table"), tr = t.createTHead().insertRow();
+  head.forEach((h, i) => { const th = html("th", h); if (numericCols.includes(i)) th.className = "n"; tr.appendChild(th); });
+  const tb = t.createTBody();
+  rows.forEach(r => { const row = tb.insertRow(); r.forEach((c, i) => { const td = row.insertCell(); td.textContent = c; if (numericCols.includes(i)) td.className = "n"; }); });
+  host.replaceChildren(t);
+}
+
+/* ---------- Tooltip ---------- */
+function tooltip(plot) {
+  const tip = html("div", null, "tip"); tip.hidden = true; plot.appendChild(tip);
+  return {
+    show(build, x, y) {
+      tip.replaceChildren(); build(tip); tip.hidden = false;
+      const pw = plot.clientWidth, tw = tip.offsetWidth, th = tip.offsetHeight;
+      let left = x + 14; if (left + tw > pw) left = x - tw - 14; if (left < 0) left = Math.max(0, pw - tw);
+      let top = y - th - 12; if (top < 0) top = y + 16;
+      tip.style.left = left + "px"; tip.style.top = top + "px";
+    },
+    hide() { tip.hidden = true; }
+  };
+}
+function tipRow(tip, color, value, label) {
+  const r = html("div", null, "row");
+  const ln = html("span", null, "ln"); ln.style.background = color;
+  const v = html("strong", value); v.style.display = "inline"; v.style.fontSize = "14px";
+  r.append(ln, v, html("span", label, "k")); tip.appendChild(r);
+}
+function bindHit(node, plot, tt, build, onEnter, onLeave) {
+  node.setAttribute("tabindex", "0");
+  const pos = e => { const b = plot.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  node.addEventListener("pointermove", e => { const [x, y] = pos(e); tt.show(build, x, y); onEnter && onEnter(); });
+  node.addEventListener("pointerleave", () => { tt.hide(); onLeave && onLeave(); });
+  node.addEventListener("focus", () => { const b = plot.getBoundingClientRect(), n = node.getBoundingClientRect(); tt.show(build, n.left - b.left + n.width / 2, n.top - b.top); onEnter && onEnter(); });
+  node.addEventListener("blur", () => { tt.hide(); onLeave && onLeave(); });
+}
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ---------- Derived numbers ---------- */
+const winners = DATA.filter(W), losers = DATA.filter(r => !W(r));
+const games = [];
+for (const w of winners) games.push({ w, l: losers.find(l => l.super_bowl === w.super_bowl) });
+
+function headToHead(key) {
+  let won = 0, lost = 0, even = 0;
+  for (const { w, l } of games) { if (w[key] < l[key]) won++; else if (w[key] > l[key]) lost++; else even++; }
+  return { won, lost, even, decided: won + lost };
+}
+const h2hDef = headToHead("defense_rank"), h2hOff = headToHead("offense_rank");
+// Pure clashes: one team had the better defense, the other the better offense.
+let clashDef = 0, clashOff = 0;
+for (const { w, l } of games) {
+  const wDef = w.defense_rank < l.defense_rank, wOff = w.offense_rank < l.offense_rank;
+  const lDef = l.defense_rank < w.defense_rank, lOff = l.offense_rank < w.offense_rank;
+  if (wDef && lOff) clashDef++; else if (wOff && lDef) clashOff++;
+}
+
+/* ---------- Header facts ---------- */
+(() => {
+  const host = document.getElementById("facts");
+  [["60", "Super Bowls"], ["120", "teams"], [String(new Set(DATA.map(r => r.season)).size), "seasons"]].forEach(([b, s]) => {
+    const li = document.createElement("li"); li.append(html("b", b), html("span", s)); host.appendChild(li);
+  });
+})();
+
+/* ---------- Chart 1: dumbbell ---------- */
+function chart1() {
+  const host = document.getElementById("c1"); host.replaceChildren();
+  const width = Math.max(320, host.clientWidth), narrow = width < 520;
+  const padL = narrow ? 76 : 96, padR = 24, rowH = 64, top = 18, h = top + rowH * 2 + 34;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "Average offense and defense rank for Super Bowl winners and losers" }, host);
+  const tt = tooltip(host);
+  const xmax = 10, x = v => padL + (v - 1) / (xmax - 1) * (width - padL - padR);
+  for (let v = 1; v <= xmax; v++) {
+    if (narrow && v % 3 !== 1 && v !== 10) continue;
+    el("line", { x1: x(v), x2: x(v), y1: top - 6, y2: top + rowH * 2, stroke: css("--grid") }, svg);
+    txt(svg, x(v), h - 8, v, { "text-anchor": "middle" });
+  }
+  [["Winners", winners], ["Losers", losers]].forEach(([name, set], i) => {
+    const cy = top + rowH * i + rowH / 2;
+    txt(svg, 0, cy + 5, name, { class: "row-lbl" });
+    const o = mean(set.map(r => r.offense_rank)), d = mean(set.map(r => r.defense_rank));
+    el("line", { x1: x(o), x2: x(d), y1: cy, y2: cy, stroke: css("--axis"), "stroke-width": 2 }, svg);
+    const pts = [["Offense", o, "--offense", set.map(r => r.offense_rank)], ["Defense", d, "--defense", set.map(r => r.defense_rank)]];
+    // label above the dot further left, below the other, so close values never collide
+    pts.forEach(([unit, v, col, all], j) => {
+      const above = v <= pts[1 - j][1];
+      el("circle", { cx: x(v), cy, r: 7, fill: css(col), stroke: css("--surface"), "stroke-width": 2, class: "mark" }, svg);
+      txt(svg, x(v), above ? cy - 14 : cy + 24, fmt1(v), { "text-anchor": "middle", class: "lbl" });
+      const hit = el("circle", { cx: x(v), cy, r: 16, class: "hit" }, svg);
+      hit.setAttribute("aria-label", `${name}, ${unit.toLowerCase()}: average rank ${fmt1(v)}`);
+      bindHit(hit, host, tt, tip => {
+        tip.appendChild(html("div", `${name} · ${unit}`, "k"));
+        tipRow(tip, css(col), fmt1(v), "average rank");
+        tipRow(tip, css(col), String(median(all)), "median rank");
+        tipRow(tip, css(col), `${all.filter(r => r === 1).length} of 60`, "ranked #1");
+      });
+    });
+  });
+  table(document.getElementById("t1"), ["", "Avg offense rank", "Avg defense rank", "Median offense", "Median defense"],
+    [["Winners", winners], ["Losers", losers]].map(([n, s]) => [n, fmt1(mean(s.map(r => r.offense_rank))), fmt1(mean(s.map(r => r.defense_rank))), median(s.map(r => r.offense_rank)), median(s.map(r => r.defense_rank))]), [1, 2, 3, 4]);
+}
+
+/* ---------- Chart 2: scatter ---------- */
+function chart2() {
+  const host = document.getElementById("c2"); host.replaceChildren();
+  const width = Math.max(320, host.clientWidth), narrow = width < 520;
+  const padL = 44, padR = 12, padT = 12, padB = 48;
+  const plotW = width - padL - padR, plotH = Math.min(plotW, 520);
+  const h = padT + plotH + padB;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "Scatter plot of offense rank against defense rank for all 120 Super Bowl teams" }, host);
+  const tt = tooltip(host);
+  const maxR = 30;
+  const x = v => padL + (maxR - v) / (maxR - 1) * plotW;   // rank 1 at the right
+  const y = v => padT + (v - 1) / (maxR - 1) * plotH;       // rank 1 at the top
+  [1, 5, 10, 15, 20, 25, 30].forEach(v => {
+    el("line", { x1: x(v), x2: x(v), y1: padT, y2: padT + plotH, stroke: css("--grid") }, svg);
+    el("line", { x1: padL, x2: padL + plotW, y1: y(v), y2: y(v), stroke: css("--grid") }, svg);
+    txt(svg, x(v), padT + plotH + 18, v, { "text-anchor": "middle" });
+    txt(svg, padL - 8, y(v) + 4, v, { "text-anchor": "end" });
+  });
+  txt(svg, padL + plotW, h - 6, "Offense rank  →  better", { "text-anchor": "end", class: "lbl-2" });
+  txt(svg, 0, 0, "Defense rank  →  better", { class: "lbl-2", transform: `translate(12 ${padT + plotH}) rotate(-90)` });
+  el("line", { x1: x(maxR), y1: y(maxR), x2: x(1), y2: y(1), stroke: css("--axis"), "stroke-width": 1.5 }, svg);
+  // zone labels sit in the empty corners of each side of the diagonal
+  txt(svg, x(maxR) + 8, y(7.5), "Defense ranked higher", { class: "zone" });
+  txt(svg, x(5), y(maxR) - 6, "Offense ranked higher", { class: "zone", "text-anchor": "end" });
+
+  // group teams sharing a point so the tooltip lists all of them
+  const groups = new Map();
+  for (const r of DATA) { const k = r.offense_rank + "," + r.defense_rank; (groups.get(k) || groups.set(k, []).get(k)).push(r); }
+  const order = [...groups.values()].sort((a, b) => a.some(W) - b.some(W)); // winners drawn on top
+  for (const g of order) {
+    const r0 = g[0], cx = x(r0.offense_rank), cy = y(r0.defense_rank), champ = g.some(W);
+    const r = (champ ? 5.5 : 4.5) + Math.min(4, (g.length - 1) * 1.5);   // bigger dot = several teams share these ranks
+    const mark = champ
+      ? el("circle", { cx, cy, r, fill: css("--champ"), stroke: css("--surface"), "stroke-width": 2, class: "mark" }, svg)
+      : el("circle", { cx, cy, r, fill: css("--surface"), stroke: css("--muted"), "stroke-width": 2, class: "mark" }, svg);
+    const hit = el("circle", { cx, cy, r: 12, class: "hit" }, svg);
+    hit.setAttribute("aria-label", g.map(r => `${r.season} ${r.team}, ${r.result.toLowerCase()}, offense ${r.offense_rank}, defense ${r.defense_rank}`).join("; "));
+    bindHit(hit, host, tt, tip => {
+      tip.appendChild(html("div", `Offense #${r0.offense_rank} · Defense #${r0.defense_rank}`, "k"));
+      tip.appendChild(document.createElement("hr"));
+      g.forEach(r => {
+        const row = html("div", null, "row");
+        const d = html("span", null, "dot " + (W(r) ? "dot--champ" : "dot--loser"));
+        row.append(d, html("span", `${r.season} ${r.team}`));
+        tip.appendChild(row);
+        tip.appendChild(html("div", `${r.result === "Winner" ? "Won" : "Lost"} Super Bowl ${r.super_bowl} · ${r.reg_wins}-${r.reg_losses}${r.reg_ties ? "-" + r.reg_ties : ""}`, "k"));
+      });
+    }, () => mark.classList.add("is-on"), () => mark.classList.remove("is-on"));
+  }
+  table(document.getElementById("t2"), ["", "Defense ranked higher", "Offense ranked higher", "Same rank"],
+    [["Winners", winners], ["Losers", losers]].map(([n, s]) => [n, s.filter(r => r.better_unit === "Defense").length, s.filter(r => r.better_unit === "Offense").length, s.filter(r => r.better_unit === "Even").length]), [1, 2, 3]);
+}
+
+/* ---------- Chart 3: head to head ---------- */
+function chart3() {
+  const host = document.getElementById("c3"); host.replaceChildren();
+  const width = Math.max(320, host.clientWidth), narrow = width < 560;
+  const rows = [
+    { name: "Better defense", won: h2hDef.won, n: h2hDef.decided, col: "--defense", note: `${h2hDef.even} games tied on defense rank` },
+    { name: "Better offense", won: h2hOff.won, n: h2hOff.decided, col: "--offense", note: `${h2hOff.even} games tied on offense rank` },
+    { name: narrow ? "Defense vs offense" : "Better defense vs better offense", won: clashDef, n: clashDef + clashOff, col: "--defense",
+      note: "Games where one team had the better defense and the other had the better offense. Bar shows how often the defense-first team won." },
+  ];
+  const labelW = narrow ? 0 : 230, padR = 8, bar = 22, gap = narrow ? 58 : 34, top = 8;
+  const h = top + rows.length * (bar + gap) + 18;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "How often the team with the better unit won the Super Bowl" }, host);
+  const tt = tooltip(host);
+  const x0 = labelW, x = v => x0 + v * (width - x0 - padR);
+  rows.forEach((r, i) => {
+    const yTop = top + i * (bar + gap) + (narrow ? 22 : 0);
+    if (narrow) txt(svg, 0, yTop - 8, r.name, { class: "row-lbl" });
+    else txt(svg, 0, yTop + bar / 2 + 5, r.name, { class: "row-lbl" });
+    el("rect", { x: x0, y: yTop, width: x(1) - x0, height: bar, rx: 4, fill: css("--track") }, svg);
+    const share = r.won / r.n;
+    el("rect", { x: x0, y: yTop, width: Math.max(4, x(share) - x0), height: bar, rx: 4, fill: css(r.col), class: "mark" }, svg);
+    const label = `Won ${r.won} of ${r.n} · ${pct(r.won, r.n)}%`;
+    // label sits on the track just past the bar end; if it would run off the track, it goes inside the bar
+    const t = txt(svg, x(share) + 8, yTop + bar / 2 + 4.5, label, { class: "lbl", "font-size": 12.5 });
+    if (x(share) + 8 + t.getComputedTextLength() > x(1) - 6) { t.setAttribute("x", x0 + 10); t.style.fill = "#fff"; }
+    const hit = el("rect", { x: x0, y: yTop - 6, width: x(1) - x0, height: bar + 12, class: "hit" }, svg);
+    hit.setAttribute("aria-label", `${r.name}: ${label}`);
+    bindHit(hit, host, tt, tip => {
+      tip.appendChild(html("div", r.name, "k"));
+      tipRow(tip, css(r.col), `${pct(r.won, r.n)}%`, `won ${r.won} of ${r.n}`);
+      tip.appendChild(html("div", r.note, "k"));
+    });
+  });
+  el("line", { x1: x(.5), x2: x(.5), y1: top - 4 + (narrow ? 22 : 0), y2: h - 18, stroke: css("--ink-2"), "stroke-width": 1.5 }, svg);
+  txt(svg, x(.5), h - 4, "50%", { "text-anchor": "middle" });
+  table(document.getElementById("t3"), ["", "Won", "Lost", "Win %", "Left out (same rank)"], [
+    ["Team with the better defense", h2hDef.won, h2hDef.lost, pct(h2hDef.won, h2hDef.decided) + "%", h2hDef.even],
+    ["Team with the better offense", h2hOff.won, h2hOff.lost, pct(h2hOff.won, h2hOff.decided) + "%", h2hOff.even],
+    ["Better defense vs better offense: defense-first team", clashDef, clashOff, pct(clashDef, clashDef + clashOff) + "%", "–"],
+  ], [1, 2, 3, 4]);
+}
+
+/* ---------- Chart 4: elite units ---------- */
+function chart4() {
+  const host = document.getElementById("c4"); host.replaceChildren();
+  const width = Math.max(320, host.clientWidth), narrow = width < 520;
+  const tiers = [["Ranked #1", 1], ["Top 3", 3], ["Top 5", 5], ["Top 10", 10]];
+  const stats = tiers.map(([name, k]) => ({
+    name,
+    off: { won: winners.filter(r => r.offense_rank <= k).length, n: DATA.filter(r => r.offense_rank <= k).length },
+    def: { won: winners.filter(r => r.defense_rank <= k).length, n: DATA.filter(r => r.defense_rank <= k).length },
+  }));
+  const padL = 40, padR = 8, padT = 26, plotH = 240, padB = 54, h = padT + plotH + padB;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "Super Bowl win rate for teams ranked #1, top 3, top 5 and top 10 on offense and defense" }, host);
+  const tt = tooltip(host);
+  const y = v => padT + (1 - v) * plotH;
+  [0, .25, .5, .75, 1].forEach(v => {
+    el("line", { x1: padL, x2: width - padR, y1: y(v), y2: y(v), stroke: css(v === .5 ? "--axis" : "--grid"), "stroke-width": v === .5 ? 1.5 : 1 }, svg);
+    txt(svg, padL - 8, y(v) + 4, Math.round(v * 100) + "%", { "text-anchor": "end" });
+  });
+  const band = (width - padL - padR) / tiers.length, bw = Math.min(24, band / 3.4), gap2 = 6;
+  stats.forEach((s, i) => {
+    const cx = padL + band * i + band / 2;
+    [["Offense", s.off, "--offense", -1], ["Defense", s.def, "--defense", 1]].forEach(([unit, v, col, side]) => {
+      const share = v.won / v.n, bx = side < 0 ? cx - gap2 / 2 - bw : cx + gap2 / 2;
+      const bh = Math.max(2, share * plotH), by = y(share);
+      el("path", { d: `M${bx},${y(0)} V${by + 4} Q${bx},${by} ${bx + 4},${by} H${bx + bw - 4} Q${bx + bw},${by} ${bx + bw},${by + 4} V${y(0)} Z`, fill: css(col), class: "mark" }, svg);
+      txt(svg, bx + bw / 2, by - 7, pct(v.won, v.n) + "%", { "text-anchor": "middle", class: "lbl", "font-size": narrow ? 11 : 12 });
+      const hit = el("rect", { x: bx - 4, y: padT, width: bw + 8, height: plotH, class: "hit" }, svg);
+      hit.setAttribute("aria-label", `${unit} ${s.name.toLowerCase()}: won ${v.won} of ${v.n} Super Bowls`);
+      bindHit(hit, host, tt, tip => {
+        tip.appendChild(html("div", `${unit} · ${s.name}`, "k"));
+        tipRow(tip, css(col), `${pct(v.won, v.n)}%`, `won ${v.won} of ${v.n} appearances`);
+      });
+    });
+    txt(svg, cx, y(0) + 20, s.name, { "text-anchor": "middle", class: "row-lbl", "font-size": 13 });
+    if (!narrow) txt(svg, cx, y(0) + 38, `${s.off.n} offenses · ${s.def.n} defenses`, { "text-anchor": "middle", "font-size": 11 });
+  });
+  table(document.getElementById("t4"), ["Regular-season rank", "Offense: won / appearances", "Offense win %", "Defense: won / appearances", "Defense win %"],
+    stats.map(s => [s.name, `${s.off.won} / ${s.off.n}`, pct(s.off.won, s.off.n) + "%", `${s.def.won} / ${s.def.n}`, pct(s.def.won, s.def.n) + "%"]), [1, 2, 3, 4]);
+}
+
+/* ---------- Chart 5: by decade ---------- */
+function chart5() {
+  const host = document.getElementById("c5"); host.replaceChildren();
+  const width = Math.max(320, host.clientWidth), narrow = width < 520;
+  const decs = [...new Set(winners.map(r => decade(r.season)))].sort();
+  const pts = decs.map(d => { const s = winners.filter(r => decade(r.season) === d); return { d, n: s.length, off: mean(s.map(r => r.offense_rank)), def: mean(s.map(r => r.defense_rank)) }; });
+  const padL = 36, padR = narrow ? 60 : 74, padT = 14, plotH = 220, padB = 34, h = padT + plotH + padB;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "Super Bowl winners' average offense and defense rank by decade" }, host);
+  const tt = tooltip(host);
+  const ymax = 12, y = v => padT + (v - 1) / (ymax - 1) * plotH;
+  const x = i => padL + 12 + i / (pts.length - 1) * (width - padL - padR - 24);
+  [1, 4, 8, 12].forEach(v => { el("line", { x1: padL, x2: width - padR + 8, y1: y(v), y2: y(v), stroke: css("--grid") }, svg); txt(svg, padL - 8, y(v) + 4, v, { "text-anchor": "end" }); });
+  pts.forEach((p, i) => txt(svg, x(i), h - 10, (narrow ? "'" + String(p.d).slice(2) : p.d) + "s", { "text-anchor": "middle" }));
+  [["Offense", "off", "--offense"], ["Defense", "def", "--defense"]].forEach(([unit, k, col]) => {
+    el("polyline", { points: pts.map((p, i) => `${x(i)},${y(p[k])}`).join(" "), fill: "none", stroke: css(col), "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", class: "mark" }, svg);
+    pts.forEach((p, i) => el("circle", { cx: x(i), cy: y(p[k]), r: 4.5, fill: css(col), stroke: css("--surface"), "stroke-width": 2, class: "mark" }, svg));
+  });
+  // end labels, nudged apart only if they would overlap
+  const last = pts[pts.length - 1], lx = x(pts.length - 1) + 12;
+  let yo = y(last.off), yd = y(last.def);
+  if (Math.abs(yo - yd) < 16) { const m = (yo + yd) / 2, s = yo < yd ? -1 : 1; yo = m + s * 8; yd = m - s * 8; }
+  txt(svg, lx, yo + 4, "Offense", { class: "lbl-2" });
+  txt(svg, lx, yd + 4, "Defense", { class: "lbl-2" });
+  // crosshair per decade
+  const cross = el("line", { y1: padT, y2: padT + plotH, stroke: css("--axis"), visibility: "hidden" }, svg);
+  pts.forEach((p, i) => {
+    const half = (width - padL - padR - 24) / (pts.length - 1) / 2;
+    const hit = el("rect", { x: x(i) - half, y: padT, width: half * 2, height: plotH, class: "hit" }, svg);
+    hit.setAttribute("aria-label", `${p.d}s: winners averaged offense rank ${fmt1(p.off)}, defense rank ${fmt1(p.def)}, ${p.n} Super Bowls`);
+    bindHit(hit, host, tt, tip => {
+      tip.appendChild(html("div", `${p.d}s · ${p.n} Super Bowl winners`, "k"));
+      tipRow(tip, css("--defense"), fmt1(p.def), "avg defense rank");
+      tipRow(tip, css("--offense"), fmt1(p.off), "avg offense rank");
+    }, () => { cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible"); }, () => cross.setAttribute("visibility", "hidden"));
+  });
+  table(document.getElementById("t5"), ["Decade", "Super Bowls", "Winners' avg offense rank", "Winners' avg defense rank"],
+    pts.map(p => [p.d + "s", p.n, fmt1(p.off), fmt1(p.def)]), [1, 2, 3]);
+}
+
+/* ---------- Full table ---------- */
+function fullTable() {
+  const cols = [
+    ["Super Bowl", r => r.super_bowl, r => r.season * 2 + (W(r) ? 0 : 1)],
+    ["Season", r => r.season, r => r.season],
+    ["Team", r => r.team, r => r.team],
+    ["Result", r => r.result === "Winner" ? "Won" : "Lost", r => r.result],
+    ["Record", r => `${r.reg_wins}-${r.reg_losses}${r.reg_ties ? "-" + r.reg_ties : ""}`, r => -r.reg_wins / r.reg_games],
+    ["Points scored", r => r.points_scored, r => -r.points_scored, true],
+    ["Offense rank", r => r.offense_rank, r => r.offense_rank, true],
+    ["Points allowed", r => r.points_allowed, r => r.points_allowed, true],
+    ["Defense rank", r => r.defense_rank, r => r.defense_rank, true],
+    ["League", r => `${r.league} (${r.teams_in_league})`, r => r.teams_in_league, true],
+  ];
+  const t = document.getElementById("tall");
+  let sortI = 0, asc = true;
+  function render() {
+    t.replaceChildren();
+    const tr = t.createTHead().insertRow();
+    cols.forEach(([name, , , num], i) => {
+      const th = document.createElement("th"); if (num) th.className = "n";
+      const b = document.createElement("button"); b.type = "button"; b.textContent = name;
+      if (i === sortI) b.setAttribute("aria-sort", asc ? "ascending" : "descending");
+      b.addEventListener("click", () => { asc = i === sortI ? !asc : true; sortI = i; render(); });
+      th.appendChild(b); tr.appendChild(th);
+    });
+    const key = cols[sortI][2];
+    const rows = [...DATA].sort((a, b) => { const ka = key(a), kb = key(b); return (ka < kb ? -1 : ka > kb ? 1 : 0) * (asc ? 1 : -1); });
+    const tb = t.createTBody();
+    rows.forEach(r => {
+      const row = tb.insertRow();
+      cols.forEach(([name, get, , num]) => {
+        const td = row.insertCell(); if (num) td.className = "n";
+        if (name === "Result") { const s = html("span", null, "res"); s.append(html("span", null, "dot " + (W(r) ? "dot--champ" : "dot--loser")), document.createTextNode(get(r))); td.appendChild(s); }
+        else td.textContent = get(r);
+      });
+    });
+  }
+  render();
+}
+
+function drawAll() { chart1(); chart2(); chart3(); chart4(); chart5(); }
+drawAll();
+fullTable();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
+new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+
+</html>
