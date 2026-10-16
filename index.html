@@ -306,8 +306,8 @@ function chart1() {
     { name: "Worse in both", test: (d, o) => d === "worse" && o === "worse", col: "--muted" },
     { name: "Better on defense, same on offense", test: (d, o) => d === "better" && o === "same", col: "--defense" },
     { name: "Better on offense, same on defense", test: (d, o) => d === "same" && o === "better", col: "--offense" },
-    { name: "Worse on defense, same on offense", test: (d, o) => d === "worse" && o === "same", col: "--axis" },
-    { name: "Worse on offense, same on defense", test: (d, o) => d === "same" && o === "worse", col: "--axis" },
+    { name: "Worse on defense, same on offense", test: (d, o) => d === "worse" && o === "same", col: "--muted" },
+    { name: "Worse on offense, same on defense", test: (d, o) => d === "same" && o === "worse", col: "--muted" },
   ].map(g => ({ ...g, teams: [] }));
   for (const w of winners) {
     const l = opponentOf(w), d = cmp(w.defense_rank, l.defense_rank), o = cmp(w.offense_rank, l.offense_rank);
@@ -346,12 +346,14 @@ function chart1b() {
   const width = Math.max(300, host.clientWidth), narrow = width < 600;
   const cmp = (a, b) => a < b ? "better" : a > b ? "worse" : "same";
   const profiles = [
-    { name: "Better defense, worse offense", d: "better", o: "worse", col: "--defense" },
-    { name: "Better offense, worse defense", d: "worse", o: "better", col: "--offense" },
+    { name: "Better on defense, worse on offense", d: "better", o: "worse", col: "--defense" },
     { name: "Better in both", d: "better", o: "better", col: "--ink-2" },
+    { name: "Better on offense, worse on defense", d: "worse", o: "better", col: "--offense" },
     { name: "Worse in both", d: "worse", o: "worse", col: "--muted" },
-    { name: "Better defense, same offense", d: "better", o: "same", col: "--defense" },
-    { name: "Better offense, same defense", d: "same", o: "better", col: "--offense" },
+    { name: "Better on defense, same on offense", d: "better", o: "same", col: "--defense" },
+    { name: "Better on offense, same on defense", d: "same", o: "better", col: "--offense" },
+    { name: "Worse on defense, same on offense", d: "worse", o: "same", col: "--muted" },
+    { name: "Worse on offense, same on defense", d: "same", o: "worse", col: "--muted" },
   ].map(p => ({ ...p, won: [], lost: [] }));
   // every Super Bowl team, described against the team it played
   for (const r of DATA) {
@@ -370,9 +372,11 @@ function chart1b() {
     else txt(svg, 0, yTop + bar / 2 + 5, p.name, { class: "row-lbl" });
     el("rect", { x: x0, y: yTop, width: x(1) - x0, height: bar, rx: 4, fill: css("--track") }, svg);
     el("rect", { x: x0, y: yTop, width: Math.max(4, x(share) - x0 - 1), height: bar, rx: 4, fill: css(p.col), class: "mark" }, svg);
+    // 50% mark across this bar only (drawn before the label so text sits on top of it)
+    el("line", { x1: x(.5), x2: x(.5), y1: yTop - 4, y2: yTop + bar + 4, stroke: css("--ink-2"), "stroke-width": 1.5, "stroke-opacity": .7 }, svg);
     const label = `Won ${p.won.length} · Lost ${p.lost.length}`;
-    const t = txt(svg, x(share) + 8, yTop + bar / 2 + 4.5, label, { class: "lbl", "font-size": 12.5 });
-    if (x(share) + 8 + t.getComputedTextLength() > x(1) - 6) { t.setAttribute("x", x0 + 10); t.style.fill = "#fff"; }
+    const t = txt(svg, x(share) + 8, yTop + bar / 2 + 4.5, label, { class: "lbl", "font-size": 12.5, "paint-order": "stroke", stroke: css("--track"), "stroke-width": 4, "stroke-linejoin": "round" });
+    if (x(share) + 8 + t.getComputedTextLength() > x(1) - 6) { t.setAttribute("x", x0 + 10); t.style.fill = "#fff"; t.setAttribute("stroke", "none"); }
     const hit = el("rect", { x: 0, y: yTop - (narrow ? 22 : 9), width, height: bar + (narrow ? 30 : 18), class: "hit" }, svg);
     hit.setAttribute("aria-label", `${p.name}: won ${p.won.length}, lost ${p.lost.length}`);
     bindHit(hit, host, tt, tip => {
@@ -385,8 +389,7 @@ function chart1b() {
     });
   });
   const yb = top + rowH * profiles.length - (rowH - bar);
-  // the 50% mark is drawn across each bar only, so it never cuts through the row labels
-  profiles.forEach((p, i) => { const yTop = top + i * rowH; el("line", { x1: x(.5), x2: x(.5), y1: yTop - 4, y2: yTop + bar + 4, stroke: css("--ink-2"), "stroke-width": 1.5 }, svg); });
+
   txt(svg, x(.5), yb + 18, "50%", { "text-anchor": "middle" });
   table(document.getElementById("t1b"), ["Compared with its opponent, the team was…", "Won", "Lost", "Win %", "Teams that won", "Teams that lost"],
     profiles.map(p => [p.name, p.won.length, p.lost.length, pct(p.won.length, p.won.length + p.lost.length) + "%",
