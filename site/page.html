@@ -72,6 +72,13 @@ figure { margin: 0; display: grid; gap: 14px; background: var(--surface); border
 figure h2 { font: 600 clamp(20px, 3.2vw, 26px)/1.2 var(--font-display); margin: 0; text-wrap: balance; }
 .read { font-size: 14.5px; color: var(--ink-2); margin: 0; max-width: 66ch; }
 .plot { position: relative; width: 100%; min-width: 0; }
+.panel { display: grid; gap: 14px; min-width: 0; }
+.panel[hidden] { display: none; }
+.tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 10px; background: var(--track); width: max-content; max-width: 100%; }
+.tabs button { all: unset; cursor: pointer; padding: 7px 14px; border-radius: 7px; font: 500 14px/1.2 var(--font-body); color: var(--ink-2); }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+.tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .scroll { overflow-x: auto; min-width: 0; padding-bottom: 4px; }
 .scroll .plot svg { width: auto; }
 .swipe { display: none; margin: 0; font-size: 13px; color: var(--muted); }
@@ -135,10 +142,21 @@ footer { font-size: 13px; color: var(--muted); }
 
   <figure id="f1">
     <p class="fig-num">Chart 1</p>
-    <h2>How did each champion compare with the team it beat?</h2>
-    <p class="read">Each Super Bowl winner's regular-season defense and offense ranks, compared with its opponent's. The blue and orange bars are the games where one team had the better defense and the other had the better offense. Hover a bar to see the teams. In Super Bowls I to IV, each team is ranked within its own league (AFL or NFL).</p>
-    <div class="plot" id="c1"></div>
-    <details><summary>Show as a table</summary><div class="tbl" id="t1"></div></details>
+    <h2>How did each team compare with its Super Bowl opponent?</h2>
+    <div class="tabs" role="tablist" aria-label="Chart 1 views">
+      <button type="button" role="tab" id="tab-a" aria-selected="true" aria-controls="panel-a">Champions</button>
+      <button type="button" role="tab" id="tab-b" aria-selected="false" aria-controls="panel-b" tabindex="-1">Winners and losers</button>
+    </div>
+    <div class="panel" role="tabpanel" id="panel-a" aria-labelledby="tab-a">
+      <p class="read">Each Super Bowl winner's regular-season defense and offense ranks, compared with its opponent's. The blue and orange bars are the games where one team had the better defense and the other had the better offense. Hover a bar to see the teams. In Super Bowls I to IV, each team is ranked within its own league (AFL or NFL).</p>
+      <div class="plot" id="c1"></div>
+      <details><summary>Show as a table</summary><div class="tbl" id="t1"></div></details>
+    </div>
+    <div class="panel" role="tabpanel" id="panel-b" aria-labelledby="tab-b" hidden>
+      <p class="read">All 120 Super Bowl teams, grouped by how their defense and offense compared with the team they played, and how often each group won. Each game appears twice, once from each team's side: a team that was better on defense and worse on offense always faced one that was the opposite. The line marks 50%.</p>
+      <div class="plot" id="c1b"></div>
+      <details><summary>Show as a table</summary><div class="tbl" id="t1b"></div></details>
+    </div>
   </figure>
 
   <figure id="f2">
@@ -284,12 +302,66 @@ function chart1() {
       tip.appendChild(html("div", g.name, "k"));
       tipRow(tip, css(g.col), `${n} of 60`, "champions");
       tip.appendChild(document.createElement("hr"));
-      tip.appendChild(html("div", g.teams.map(w => `${w.season} ${nickname(w)}`).join(", "), "k"));
+      tip.appendChild(html("div", g.teams.slice(-5).reverse().map(w => `${w.season} ${nickname(w)}`).join(", ") + (g.teams.length > 5 ? ` and ${g.teams.length - 5} more` : ""), "k"));
     });
   });
   table(document.getElementById("t1"), ["Compared with the team it beat, the champion was…", "Super Bowls", "Champions"],
     groups.map(g => [g.name, g.teams.length, g.teams.map(w => `${w.season} ${nickname(w)}`).join(", ")]), [1]);
   document.querySelectorAll("#t1 td:last-child").forEach(td => { td.style.whiteSpace = "normal"; td.style.minWidth = "320px"; });
+}
+
+/* ---------- Chart 1, second tab: win rate by matchup, winners and losers ---------- */
+function chart1b() {
+  const host = document.getElementById("c1b"); host.replaceChildren();
+  const width = Math.max(300, host.clientWidth), narrow = width < 600;
+  const cmp = (a, b) => a < b ? "better" : a > b ? "worse" : "same";
+  const profiles = [
+    { name: "Better defense, worse offense", d: "better", o: "worse", col: "--defense" },
+    { name: "Better offense, worse defense", d: "worse", o: "better", col: "--offense" },
+    { name: "Better in both", d: "better", o: "better", col: "--ink-2" },
+    { name: "Worse in both", d: "worse", o: "worse", col: "--muted" },
+    { name: "Better defense, same offense", d: "better", o: "same", col: "--defense" },
+    { name: "Better offense, same defense", d: "same", o: "better", col: "--offense" },
+  ].map(p => ({ ...p, won: [], lost: [] }));
+  // every Super Bowl team, described against the team it played
+  for (const r of DATA) {
+    const opp = DATA.find(o => o.super_bowl === r.super_bowl && o !== r);
+    const p = profiles.find(p => p.d === cmp(r.defense_rank, opp.defense_rank) && p.o === cmp(r.offense_rank, opp.offense_rank));
+    if (p) (W(r) ? p.won : p.lost).push(r);
+  }
+  const labelW = narrow ? 0 : 250, padR = 8, bar = 22, rowH = narrow ? 58 : 42, top = narrow ? 22 : 4, foot = 22;
+  const h = top + rowH * profiles.length - (rowH - bar) + foot;
+  const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, role: "img", "aria-label": "Super Bowl record of teams by how their defense and offense compared with their opponent's" }, host);
+  const tt = tooltip(host);
+  const x0 = labelW, x = v => x0 + v * (width - x0 - padR);
+  profiles.forEach((p, i) => {
+    const yTop = top + i * rowH, n = p.won.length + p.lost.length, share = p.won.length / n;
+    if (narrow) txt(svg, 0, yTop - 7, p.name, { class: "row-lbl", "font-size": 13.5 });
+    else txt(svg, 0, yTop + bar / 2 + 5, p.name, { class: "row-lbl" });
+    el("rect", { x: x0, y: yTop, width: x(1) - x0, height: bar, rx: 4, fill: css("--track") }, svg);
+    el("rect", { x: x0, y: yTop, width: Math.max(4, x(share) - x0 - 1), height: bar, rx: 4, fill: css(p.col), class: "mark" }, svg);
+    const label = `Won ${p.won.length} · Lost ${p.lost.length}`;
+    const t = txt(svg, x(share) + 8, yTop + bar / 2 + 4.5, label, { class: "lbl", "font-size": 12.5 });
+    if (x(share) + 8 + t.getComputedTextLength() > x(1) - 6) { t.setAttribute("x", x0 + 10); t.style.fill = "#fff"; }
+    const hit = el("rect", { x: 0, y: yTop - (narrow ? 22 : 9), width, height: bar + (narrow ? 30 : 18), class: "hit" }, svg);
+    hit.setAttribute("aria-label", `${p.name}: won ${p.won.length}, lost ${p.lost.length}`);
+    bindHit(hit, host, tt, tip => {
+      tip.appendChild(html("div", p.name + " than its opponent", "k"));
+      tipRow(tip, css(p.col), `${pct(p.won.length, n)}%`, `won ${p.won.length} of ${n}`);
+      tip.appendChild(document.createElement("hr"));
+      const few = list => list.slice(-4).reverse().map(r => `${r.season} ${nickname(r)}`).join(", ") + (list.length > 4 ? ` and ${list.length - 4} more` : "");
+      if (p.won.length) tip.appendChild(html("div", "Won: " + few(p.won), "k"));
+      if (p.lost.length) tip.appendChild(html("div", "Lost: " + few(p.lost), "k"));
+    });
+  });
+  const yb = top + rowH * profiles.length - (rowH - bar);
+  // the 50% mark is drawn across each bar only, so it never cuts through the row labels
+  profiles.forEach((p, i) => { const yTop = top + i * rowH; el("line", { x1: x(.5), x2: x(.5), y1: yTop - 4, y2: yTop + bar + 4, stroke: css("--ink-2"), "stroke-width": 1.5 }, svg); });
+  txt(svg, x(.5), yb + 18, "50%", { "text-anchor": "middle" });
+  table(document.getElementById("t1b"), ["Compared with its opponent, the team was…", "Won", "Lost", "Win %", "Teams that won", "Teams that lost"],
+    profiles.map(p => [p.name, p.won.length, p.lost.length, pct(p.won.length, p.won.length + p.lost.length) + "%",
+      p.won.map(r => `${r.season} ${nickname(r)}`).join(", "), p.lost.map(r => `${r.season} ${nickname(r)}`).join(", ")]), [1, 2, 3]);
+  document.querySelectorAll("#t1b td:nth-child(n+5)").forEach(td => { td.style.whiteSpace = "normal"; td.style.minWidth = "260px"; });
 }
 
 /* ---------- Chart 2: elite units among champions ---------- */
@@ -433,7 +505,28 @@ function fullTable() {
   render();
 }
 
-function drawAll() { chart1(); chart2(); chart3(); }
+function drawAll() { chart1(); chart1b(); chart2(); chart3(); }
+
+/* ---------- Chart 1 tabs ---------- */
+(() => {
+  const tabs = [...document.querySelectorAll('#f1 [role="tab"]')];
+  const pick = (tab, focus) => {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+    if (focus) tab.focus();
+    drawAll();   // hidden panels have no width, so redraw the one now showing
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => pick(t));
+    t.addEventListener("keydown", e => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      pick(tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length], true);
+    });
+  });
+})();
 drawAll();
 fullTable();
 let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
