@@ -1,0 +1,121 @@
+super_bowl,season,result,team,franchise,opponent,sb_points_for,sb_points_against,league,teams_in_league,reg_wins,reg_losses,reg_ties,reg_games,points_scored,points_allowed,points_scored_per_game,points_allowed_per_game,offense_rank,defense_rank,offense_percentile,defense_percentile,better_unit
+I,1966,Winner,Green Bay Packers,GB,Kansas City Chiefs,35,10,NFL,15,12,2,0,14,335,163,23.9,11.6,4,1,0.786,1.0,Defense
+I,1966,Loser,Kansas City Chiefs,KC,Green Bay Packers,10,35,AFL,9,11,2,1,14,448,276,32.0,19.7,1,2,1.0,0.875,Offense
+II,1967,Winner,Green Bay Packers,GB,Oakland Raiders,33,14,NFL,16,9,4,1,14,332,209,23.7,14.9,9,3,0.467,0.867,Defense
+II,1967,Loser,Oakland Raiders,LV,Green Bay Packers,14,33,AFL,9,13,1,0,14,468,233,33.4,16.6,1,2,1.0,0.875,Offense
+III,1968,Winner,New York Jets,NYJ,Baltimore Colts,16,7,AFL,10,11,3,0,14,419,280,29.9,20.0,2,4,0.889,0.667,Offense
+III,1968,Loser,Baltimore Colts,IND,New York Jets,7,16,NFL,16,13,1,0,14,402,144,28.7,10.3,2,1,0.933,1.0,Defense
+IV,1969,Winner,Kansas City Chiefs,KC,Minnesota Vikings,23,7,AFL,10,11,3,0,14,359,177,25.6,12.6,2,1,0.889,1.0,Defense
+IV,1969,Loser,Minnesota Vikings,MIN,Kansas City Chiefs,7,23,NFL,16,12,2,0,14,379,133,27.1,9.5,1,1,1.0,1.0,Even
+V,1970,Winner,Baltimore Colts,IND,Dallas Cowboys,16,13,NFL,26,11,2,1,14,321,234,22.9,16.7,6,7,0.8,0.76,Offense
+V,1970,Loser,Dallas Cowboys,DAL,Baltimore Colts,13,16,NFL,26,10,4,0,14,299,221,21.4,15.8,10,4,0.64,0.88,Defense
+VI,1971,Winner,Dallas Cowboys,DAL,Miami Dolphins,24,3,NFL,26,11,3,0,14,406,222,29.0,15.9,1,7,1.0,0.76,Offense
+VI,1971,Loser,Miami Dolphins,MIA,Dallas Cowboys,3,24,NFL,26,10,3,1,14,315,174,22.5,12.4,4,3,0.88,0.92,Defense
+VII,1972,Winner,Miami Dolphins,MIA,Washington Redskins,14,7,NFL,26,14,0,0,14,385,171,27.5,12.2,1,1,1.0,1.0,Even
+VII,1972,Loser,Washington Redskins,WSH,Miami Dolphins,7,14,NFL,26,11,3,0,14,336,218,24.0,15.6,7,3,0.76,0.92,Defense
+VIII,1973,Winner,Miami Dolphins,MIA,Minnesota Vikings,24,7,NFL,26,12,2,0,14,343,150,24.5,10.7,5,1,0.84,1.0,Defense
+VIII,1973,Loser,Minnesota Vikings,MIN,Miami Dolphins,7,24,NFL,26,12,2,0,14,296,168,21.1,12.0,9,2,0.68,0.96,Defense
+IX,1974,Winner,Pittsburgh Steelers,PIT,Minnesota Vikings,16,6,NFL,26,10,3,1,14,305,189,21.8,13.5,6,2,0.8,0.96,Defense
+IX,1974,Loser,Minnesota Vikings,MIN,Pittsburgh Steelers,6,16,NFL,26,10,4,0,14,310,195,22.1,13.9,5,3,0.84,0.92,Defense
+X,1975,Winner,Pittsburgh Steelers,PIT,Dallas Cowboys,21,17,NFL,26,12,2,0,14,373,162,26.6,11.6,5,2,0.84,0.96,Defense
+X,1975,Loser,Dallas Cowboys,DAL,Pittsburgh Steelers,17,21,NFL,26,10,4,0,14,350,268,25.0,19.1,8,9,0.72,0.68,Offense
+XI,1976,Winner,Oakland Raiders,LV,Minnesota Vikings,32,14,NFL,28,13,1,0,14,350,237,25.0,16.9,4,12,0.889,0.593,Offense
+XI,1976,Loser,Minnesota Vikings,MIN,Oakland Raiders,14,32,NFL,28,11,2,1,14,305,176,21.8,12.6,9,2,0.704,0.963,Defense
+XII,1977,Winner,Dallas Cowboys,DAL,Denver Broncos,27,10,NFL,28,12,2,0,14,345,212,24.6,15.1,2,8,0.963,0.741,Offense
+XII,1977,Loser,Denver Broncos,DEN,Dallas Cowboys,10,27,NFL,28,12,2,0,14,274,148,19.6,10.6,10,3,0.667,0.926,Defense
+XIII,1978,Winner,Pittsburgh Steelers,PIT,Dallas Cowboys,35,31,NFL,28,14,2,0,16,356,195,22.2,12.2,5,1,0.852,1.0,Defense
+XIII,1978,Loser,Dallas Cowboys,DAL,Pittsburgh Steelers,31,35,NFL,28,12,4,0,16,384,208,24.0,13.0,1,3,1.0,0.926,Offense
+XIV,1979,Winner,Pittsburgh Steelers,PIT,Los Angeles Rams,31,19,NFL,28,12,4,0,16,416,262,26.0,16.4,1,5,1.0,0.852,Offense
+XIV,1979,Loser,Los Angeles Rams,LAR,Pittsburgh Steelers,19,31,NFL,28,9,7,0,16,323,309,20.2,19.3,15,11,0.481,0.63,Defense
+XV,1980,Winner,Oakland Raiders,LV,Philadelphia Eagles,27,10,NFL,28,11,5,0,16,364,306,22.8,19.1,7,10,0.778,0.667,Offense
+XV,1980,Loser,Philadelphia Eagles,PHI,Oakland Raiders,10,27,NFL,28,12,4,0,16,384,222,24.0,13.9,6,1,0.815,1.0,Defense
+XVI,1981,Winner,San Francisco 49ers,SF,Cincinnati Bengals,26,21,NFL,28,13,3,0,16,357,250,22.3,15.6,7,2,0.778,0.963,Defense
+XVI,1981,Loser,Cincinnati Bengals,CIN,San Francisco 49ers,21,26,NFL,28,12,4,0,16,421,304,26.3,19.0,3,12,0.926,0.593,Offense
+XVII,1982,Winner,Washington Redskins,WSH,Miami Dolphins,27,17,NFL,28,8,1,0,9,190,128,21.1,14.2,12,1,0.593,1.0,Defense
+XVII,1982,Loser,Miami Dolphins,MIA,Washington Redskins,17,27,NFL,28,7,2,0,9,198,131,22.0,14.6,10,2,0.667,0.963,Defense
+XVIII,1983,Winner,Los Angeles Raiders,LV,Washington Redskins,38,9,NFL,28,12,4,0,16,442,338,27.6,21.1,3,13,0.926,0.556,Offense
+XVIII,1983,Loser,Washington Redskins,WSH,Los Angeles Raiders,9,38,NFL,28,14,2,0,16,541,332,33.8,20.8,1,11,1.0,0.63,Offense
+XIX,1984,Winner,San Francisco 49ers,SF,Miami Dolphins,38,16,NFL,28,15,1,0,16,475,227,29.7,14.2,2,1,0.963,1.0,Defense
+XIX,1984,Loser,Miami Dolphins,MIA,San Francisco 49ers,16,38,NFL,28,14,2,0,16,513,298,32.1,18.6,1,7,1.0,0.778,Offense
+XX,1985,Winner,Chicago Bears,CHI,New England Patriots,46,10,NFL,28,15,1,0,16,456,198,28.5,12.4,2,1,0.963,1.0,Defense
+XX,1985,Loser,New England Patriots,NE,Chicago Bears,10,46,NFL,28,11,5,0,16,362,290,22.6,18.1,10,6,0.667,0.815,Defense
+XXI,1986,Winner,New York Giants,NYG,Denver Broncos,39,20,NFL,28,14,2,0,16,371,236,23.2,14.8,8,2,0.741,0.963,Defense
+XXI,1986,Loser,Denver Broncos,DEN,New York Giants,20,39,NFL,28,11,5,0,16,378,327,23.6,20.4,6,15,0.815,0.481,Offense
+XXII,1987,Winner,Washington Redskins,WSH,Denver Broncos,42,10,NFL,28,11,4,0,15,379,285,25.3,19.0,4,6,0.889,0.815,Offense
+XXII,1987,Loser,Denver Broncos,DEN,Washington Redskins,10,42,NFL,28,10,4,1,15,379,288,25.3,19.2,4,7,0.889,0.778,Offense
+XXIII,1988,Winner,San Francisco 49ers,SF,Cincinnati Bengals,20,16,NFL,28,10,6,0,16,369,294,23.1,18.4,7,8,0.778,0.741,Offense
+XXIII,1988,Loser,Cincinnati Bengals,CIN,San Francisco 49ers,16,20,NFL,28,12,4,0,16,448,329,28.0,20.6,1,16,1.0,0.444,Offense
+XXIV,1989,Winner,San Francisco 49ers,SF,Denver Broncos,55,10,NFL,28,14,2,0,16,442,253,27.6,15.8,1,3,1.0,0.926,Offense
+XXIV,1989,Loser,Denver Broncos,DEN,San Francisco 49ers,10,55,NFL,28,11,5,0,16,362,226,22.6,14.1,8,1,0.741,1.0,Defense
+XXV,1990,Winner,New York Giants,NYG,Buffalo Bills,20,19,NFL,28,13,3,0,16,335,211,20.9,13.2,15,1,0.481,1.0,Defense
+XXV,1990,Loser,Buffalo Bills,BUF,New York Giants,19,20,NFL,28,13,3,0,16,428,263,26.8,16.4,1,6,1.0,0.815,Offense
+XXVI,1991,Winner,Washington Redskins,WSH,Buffalo Bills,37,24,NFL,28,14,2,0,16,485,224,30.3,14.0,1,2,1.0,0.963,Offense
+XXVI,1991,Loser,Buffalo Bills,BUF,Washington Redskins,24,37,NFL,28,13,3,0,16,458,318,28.6,19.9,2,19,0.963,0.333,Offense
+XXVII,1992,Winner,Dallas Cowboys,DAL,Buffalo Bills,52,17,NFL,28,13,3,0,16,409,243,25.6,15.2,2,5,0.963,0.852,Offense
+XXVII,1992,Loser,Buffalo Bills,BUF,Dallas Cowboys,17,52,NFL,28,11,5,0,16,381,283,23.8,17.7,3,14,0.926,0.519,Offense
+XXVIII,1993,Winner,Dallas Cowboys,DAL,Buffalo Bills,30,13,NFL,28,12,4,0,16,376,229,23.5,14.3,2,2,0.963,0.963,Even
+XXVIII,1993,Loser,Buffalo Bills,BUF,Dallas Cowboys,13,30,NFL,28,12,4,0,16,329,242,20.6,15.1,7,5,0.778,0.852,Defense
+XXIX,1994,Winner,San Francisco 49ers,SF,San Diego Chargers,49,26,NFL,28,13,3,0,16,505,296,31.6,18.5,1,6,1.0,0.815,Offense
+XXIX,1994,Loser,San Diego Chargers,LAC,San Francisco 49ers,26,49,NFL,28,11,5,0,16,381,306,23.8,19.1,5,9,0.852,0.704,Offense
+XXX,1995,Winner,Dallas Cowboys,DAL,Pittsburgh Steelers,27,17,NFL,30,12,4,0,16,435,291,27.2,18.2,3,3,0.931,0.931,Even
+XXX,1995,Loser,Pittsburgh Steelers,PIT,Dallas Cowboys,17,27,NFL,30,11,5,0,16,407,327,25.4,20.4,5,9,0.862,0.724,Offense
+XXXI,1996,Winner,Green Bay Packers,GB,New England Patriots,35,21,NFL,30,13,3,0,16,456,210,28.5,13.1,1,1,1.0,1.0,Even
+XXXI,1996,Loser,New England Patriots,NE,Green Bay Packers,21,35,NFL,30,11,5,0,16,418,313,26.1,19.6,2,14,0.966,0.552,Offense
+XXXII,1997,Winner,Denver Broncos,DEN,Green Bay Packers,31,24,NFL,30,12,4,0,16,472,287,29.5,17.9,1,6,1.0,0.828,Offense
+XXXII,1997,Loser,Green Bay Packers,GB,Denver Broncos,24,31,NFL,30,13,3,0,16,422,282,26.4,17.6,2,5,0.966,0.862,Offense
+XXXIII,1998,Winner,Denver Broncos,DEN,Atlanta Falcons,34,19,NFL,30,14,2,0,16,501,309,31.3,19.3,2,8,0.966,0.759,Offense
+XXXIII,1998,Loser,Atlanta Falcons,ATL,Denver Broncos,19,34,NFL,30,14,2,0,16,442,289,27.6,18.1,4,4,0.897,0.897,Even
+XXXIV,1999,Winner,St. Louis Rams,LAR,Tennessee Titans,23,16,NFL,31,13,3,0,16,526,242,32.9,15.1,1,4,1.0,0.9,Offense
+XXXIV,1999,Loser,Tennessee Titans,TEN,St. Louis Rams,16,23,NFL,31,13,3,0,16,392,324,24.5,20.2,7,15,0.8,0.533,Offense
+XXXV,2000,Winner,Baltimore Ravens,BAL,New York Giants,34,7,NFL,31,12,4,0,16,333,165,20.8,10.3,14,1,0.567,1.0,Defense
+XXXV,2000,Loser,New York Giants,NYG,Baltimore Ravens,7,34,NFL,31,12,4,0,16,328,246,20.5,15.4,15,5,0.533,0.867,Defense
+XXXVI,2001,Winner,New England Patriots,NE,St. Louis Rams,20,17,NFL,31,11,5,0,16,371,272,23.2,17.0,6,6,0.833,0.833,Even
+XXXVI,2001,Loser,St. Louis Rams,LAR,New England Patriots,17,20,NFL,31,14,2,0,16,503,273,31.4,17.1,1,7,1.0,0.8,Offense
+XXXVII,2002,Winner,Tampa Bay Buccaneers,TB,Oakland Raiders,48,21,NFL,32,12,4,0,16,346,196,21.6,12.2,18,1,0.452,1.0,Defense
+XXXVII,2002,Loser,Oakland Raiders,LV,Tampa Bay Buccaneers,21,48,NFL,32,11,5,0,16,450,304,28.1,19.0,2,6,0.968,0.839,Offense
+XXXVIII,2003,Winner,New England Patriots,NE,Carolina Panthers,32,29,NFL,32,14,2,0,16,348,238,21.8,14.9,12,1,0.645,1.0,Defense
+XXXVIII,2003,Loser,Carolina Panthers,CAR,New England Patriots,29,32,NFL,32,11,5,0,16,325,304,20.3,19.0,15,10,0.548,0.71,Defense
+XXXIX,2004,Winner,New England Patriots,NE,Philadelphia Eagles,24,21,NFL,32,14,2,0,16,437,260,27.3,16.2,4,2,0.903,0.968,Defense
+XXXIX,2004,Loser,Philadelphia Eagles,PHI,New England Patriots,21,24,NFL,32,13,3,0,16,386,260,24.1,16.2,8,2,0.774,0.968,Defense
+XL,2005,Winner,Pittsburgh Steelers,PIT,Seattle Seahawks,21,10,NFL,32,11,5,0,16,389,258,24.3,16.1,9,3,0.742,0.935,Defense
+XL,2005,Loser,Seattle Seahawks,SEA,Pittsburgh Steelers,10,21,NFL,32,13,3,0,16,452,271,28.2,16.9,1,7,1.0,0.806,Offense
+XLI,2006,Winner,Indianapolis Colts,IND,Chicago Bears,29,17,NFL,32,12,4,0,16,427,360,26.7,22.5,2,23,0.968,0.29,Offense
+XLI,2006,Loser,Chicago Bears,CHI,Indianapolis Colts,17,29,NFL,32,13,3,0,16,427,255,26.7,15.9,2,3,0.968,0.935,Offense
+XLII,2007,Winner,New York Giants,NYG,New England Patriots,17,14,NFL,32,10,6,0,16,373,351,23.3,21.9,14,17,0.581,0.484,Offense
+XLII,2007,Loser,New England Patriots,NE,New York Giants,14,17,NFL,32,16,0,0,16,589,274,36.8,17.1,1,4,1.0,0.903,Offense
+XLIII,2008,Winner,Pittsburgh Steelers,PIT,Arizona Cardinals,27,23,NFL,32,12,4,0,16,347,223,21.7,13.9,20,1,0.387,1.0,Defense
+XLIII,2008,Loser,Arizona Cardinals,ARI,Pittsburgh Steelers,23,27,NFL,32,9,7,0,16,427,426,26.7,26.6,3,28,0.935,0.129,Offense
+XLIV,2009,Winner,New Orleans Saints,NO,Indianapolis Colts,31,17,NFL,32,13,3,0,16,510,341,31.9,21.3,1,20,1.0,0.387,Offense
+XLIV,2009,Loser,Indianapolis Colts,IND,New Orleans Saints,17,31,NFL,32,14,2,0,16,416,307,26.0,19.2,7,8,0.806,0.774,Offense
+XLV,2010,Winner,Green Bay Packers,GB,Pittsburgh Steelers,31,25,NFL,32,10,6,0,16,388,240,24.2,15.0,10,2,0.71,0.968,Defense
+XLV,2010,Loser,Pittsburgh Steelers,PIT,Green Bay Packers,25,31,NFL,32,12,4,0,16,375,232,23.4,14.5,12,1,0.645,1.0,Defense
+XLVI,2011,Winner,New York Giants,NYG,New England Patriots,21,17,NFL,32,9,7,0,16,394,400,24.6,25.0,9,25,0.742,0.226,Offense
+XLVI,2011,Loser,New England Patriots,NE,New York Giants,17,21,NFL,32,13,3,0,16,513,342,32.1,21.4,3,15,0.935,0.548,Offense
+XLVII,2012,Winner,Baltimore Ravens,BAL,San Francisco 49ers,34,31,NFL,32,10,6,0,16,398,344,24.9,21.5,10,12,0.71,0.645,Offense
+XLVII,2012,Loser,San Francisco 49ers,SF,Baltimore Ravens,31,34,NFL,32,11,4,1,16,397,273,24.8,17.1,11,2,0.677,0.968,Defense
+XLVIII,2013,Winner,Seattle Seahawks,SEA,Denver Broncos,43,8,NFL,32,13,3,0,16,417,231,26.1,14.4,8,1,0.774,1.0,Defense
+XLVIII,2013,Loser,Denver Broncos,DEN,Seattle Seahawks,8,43,NFL,32,13,3,0,16,606,399,37.9,24.9,1,22,1.0,0.323,Offense
+XLIX,2014,Winner,New England Patriots,NE,Seattle Seahawks,28,24,NFL,32,12,4,0,16,468,313,29.2,19.6,4,8,0.903,0.774,Offense
+XLIX,2014,Loser,Seattle Seahawks,SEA,New England Patriots,24,28,NFL,32,12,4,0,16,394,254,24.6,15.9,10,1,0.71,1.0,Defense
+50,2015,Winner,Denver Broncos,DEN,Carolina Panthers,24,10,NFL,32,12,4,0,16,355,296,22.2,18.5,19,4,0.419,0.903,Defense
+50,2015,Loser,Carolina Panthers,CAR,Denver Broncos,10,24,NFL,32,15,1,0,16,500,308,31.2,19.2,1,6,1.0,0.839,Offense
+LI,2016,Winner,New England Patriots,NE,Atlanta Falcons,34,28,NFL,32,14,2,0,16,441,250,27.6,15.6,3,1,0.935,1.0,Defense
+LI,2016,Loser,Atlanta Falcons,ATL,New England Patriots,28,34,NFL,32,11,5,0,16,540,406,33.8,25.4,1,27,1.0,0.161,Offense
+LII,2017,Winner,Philadelphia Eagles,PHI,New England Patriots,41,33,NFL,32,13,3,0,16,457,295,28.6,18.4,3,4,0.935,0.903,Offense
+LII,2017,Loser,New England Patriots,NE,Philadelphia Eagles,33,41,NFL,32,13,3,0,16,458,296,28.6,18.5,2,5,0.968,0.871,Offense
+LIII,2018,Winner,New England Patriots,NE,Los Angeles Rams,13,3,NFL,32,11,5,0,16,436,325,27.2,20.3,4,7,0.903,0.806,Offense
+LIII,2018,Loser,Los Angeles Rams,LAR,New England Patriots,3,13,NFL,32,13,3,0,16,527,384,32.9,24.0,2,20,0.968,0.387,Offense
+LIV,2019,Winner,Kansas City Chiefs,KC,San Francisco 49ers,31,20,NFL,32,12,4,0,16,451,308,28.2,19.2,5,7,0.871,0.806,Offense
+LIV,2019,Loser,San Francisco 49ers,SF,Kansas City Chiefs,20,31,NFL,32,13,3,0,16,479,310,29.9,19.4,2,8,0.968,0.774,Offense
+LV,2020,Winner,Tampa Bay Buccaneers,TB,Kansas City Chiefs,31,9,NFL,32,11,5,0,16,492,355,30.8,22.2,3,8,0.935,0.774,Offense
+LV,2020,Loser,Kansas City Chiefs,KC,Tampa Bay Buccaneers,9,31,NFL,32,14,2,0,16,473,362,29.6,22.6,6,10,0.839,0.71,Offense
+LVI,2021,Winner,Los Angeles Rams,LAR,Cincinnati Bengals,23,20,NFL,32,12,5,0,17,460,372,27.1,21.9,7,15,0.806,0.548,Offense
+LVI,2021,Loser,Cincinnati Bengals,CIN,Los Angeles Rams,20,23,NFL,32,10,7,0,17,460,376,27.1,22.1,7,17,0.806,0.484,Offense
+LVII,2022,Winner,Kansas City Chiefs,KC,Philadelphia Eagles,38,35,NFL,32,14,3,0,17,496,369,29.2,21.7,1,16,1.0,0.516,Offense
+LVII,2022,Loser,Philadelphia Eagles,PHI,Kansas City Chiefs,35,38,NFL,32,14,3,0,17,477,344,28.1,20.2,2,8,0.968,0.774,Offense
+LVIII,2023,Winner,Kansas City Chiefs,KC,San Francisco 49ers,25,22,NFL,32,11,6,0,17,371,294,21.8,17.3,15,2,0.548,0.968,Defense
+LVIII,2023,Loser,San Francisco 49ers,SF,Kansas City Chiefs,22,25,NFL,32,12,5,0,17,491,298,28.9,17.5,3,3,0.935,0.935,Even
+LIX,2024,Winner,Philadelphia Eagles,PHI,Kansas City Chiefs,40,22,NFL,32,14,3,0,17,463,303,27.2,17.8,7,2,0.806,0.968,Defense
+LIX,2024,Loser,Kansas City Chiefs,KC,Philadelphia Eagles,22,40,NFL,32,15,2,0,17,385,326,22.6,19.2,15,4,0.548,0.903,Defense
+LX,2025,Winner,Seattle Seahawks,SEA,New England Patriots,29,13,NFL,32,14,3,0,17,483,292,28.4,17.2,3,1,0.935,1.0,Defense
+LX,2025,Loser,New England Patriots,NE,Seattle Seahawks,13,29,NFL,32,14,3,0,17,490,320,28.8,18.8,2,4,0.968,0.903,Offense
