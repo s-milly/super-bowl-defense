@@ -156,7 +156,7 @@ footer { font-size: 13px; color: var(--muted); }
   <figure id="f3" class="wide">
     <p class="fig-num">Chart 3</p>
     <h2>Every champion, Super Bowl by Super Bowl</h2>
-    <p class="read">Each column is one Super Bowl winner, labeled at the top with its season and team. Blue dots are defense rank and orange dots are offense rank. Higher on the chart is better (1 = best in the league). Leagues were smaller before 1970 (9 to 16 teams).</p>
+    <p class="read">Each column is one Super Bowl winner, labeled at the top with its season and team. Blue dots are defense rank and orange dots are offense rank. Higher on the chart is better (1 = best in the league). The dashed lines are lines of best fit; "per decade" is how much the average rank changes every 10 years, and a plus means it got worse. Leagues were smaller before 1970 (9 to 16 teams).</p>
     <p class="swipe">Swipe sideways to see every season.</p>
     <div class="scroll"><div class="plot" id="c3"></div></div>
     <details><summary>Show as a table</summary><div class="tbl" id="t3"></div></details>
@@ -335,8 +335,8 @@ function chart2() {
 function chart3() {
   const host = document.getElementById("c3"); host.replaceChildren();
   const avail = host.parentElement.clientWidth;
-  const padL = 30, padR = 8, labelH = 124, padT = labelH + 14, plotH = 300;   // season and team labels sit above the plot
-  const colW = Math.max(15, (avail - padL - padR) / winners.length);
+  const padL = 30, padR = 124, labelH = 124, padT = labelH + 14, plotH = 300;   // season and team labels sit above the plot
+  const colW = Math.max(avail > 760 ? 13.5 : 15, (avail - padL - padR) / winners.length);
   const width = padL + padR + colW * winners.length, h = padT + plotH + 14;
   host.style.width = width + "px";
   const svg = el("svg", { viewBox: `0 0 ${width} ${h}`, width, height: h, role: "img", "aria-label": "Offense and defense rank of every Super Bowl champion by season" }, host);
@@ -350,6 +350,25 @@ function chart3() {
     txt(svg, padL - 8, y(v) + 4, v, { "text-anchor": "end" });
   });
   const hover = el("rect", { x: 0, y: 0, width: colW, height: padT + plotH + 8, fill: css("--ink"), opacity: 0, rx: 3 }, svg);
+
+  // least-squares line of best fit for each unit, rank against season
+  const fit = k => {
+    const xs = winners.map(w => w.season), ys = winners.map(w => w[k]), mx = mean(xs), my = mean(ys);
+    const slope = xs.reduce((a, xv, i) => a + (xv - mx) * (ys[i] - my), 0) / xs.reduce((a, xv) => a + (xv - mx) ** 2, 0);
+    return { slope, at: season => my + slope * (season - mx) };
+  };
+  const last = winners.length - 1, ends = [];
+  [["Defense", "defense_rank", "--defense"], ["Offense", "offense_rank", "--offense"]].forEach(([unit, k, col]) => {
+    const f = fit(k), y0 = y(f.at(winners[0].season)), y1 = y(f.at(winners[last].season));
+    el("line", { x1: cx(0), y1: y0, x2: cx(last), y2: y1, stroke: css(col), "stroke-width": 2, "stroke-dasharray": "6 5", "stroke-linecap": "round" }, svg);
+    ends.push({ unit, col, y: y1, slope: f.slope });
+  });
+  // end labels, pushed apart only if they would overlap
+  if (Math.abs(ends[0].y - ends[1].y) < 36) { const m = (ends[0].y + ends[1].y) / 2, s = ends[0].y < ends[1].y ? -1 : 1; ends[0].y = m + s * 18; ends[1].y = m - s * 18; }
+  ends.forEach(e => {
+    txt(svg, cx(last) + 12, e.y - 2, `${e.unit} trend`, { class: "lbl-2" });
+    txt(svg, cx(last) + 12, e.y + 12, `${e.slope > 0 ? "+" : ""}${(e.slope * 10).toFixed(1)} per decade`, { "font-size": 11 });
+  });
 
   winners.forEach((w, i) => {
     const x = cx(i), yo = y(w.offense_rank), yd = y(w.defense_rank);
