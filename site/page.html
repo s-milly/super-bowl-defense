@@ -182,7 +182,7 @@ footer { font-size: 13px; color: var(--muted); }
       <button type="button" role="tab" id="tab-b" aria-selected="false" aria-controls="panel-b" tabindex="-1">Winners and losers</button>
     </div>
     <div class="panel" role="tabpanel" id="panel-a" aria-labelledby="tab-a">
-      <p class="read">Each Super Bowl winner's regular-season defense and offense ranks, compared with its opponent's. The blue and orange bars are the games where one team had the better defense and the other had the better offense. Hover a bar to see the teams. In Super Bowls I to IV, each team is ranked within its own league (AFL or NFL).</p>
+      <p class="read">Each Super Bowl winner's regular-season defense and offense ranks, compared with its opponent's. Blue bars are champions whose edge was on defense, and orange bars are champions whose edge was on offense. Hover a bar to see the teams. In Super Bowls I to IV, each team is ranked within its own league (AFL or NFL).</p>
       <div class="plot" id="c1"></div>
       <details><summary>Show as a table</summary><div class="tbl" id="t1"></div></details>
     </div>
@@ -300,7 +300,10 @@ function chart1() {
     { name: "Better in both", test: (d, o) => d === "better" && o === "better", col: "--ink-2" },
     { name: "Better on offense, worse on defense", test: (d, o) => d === "worse" && o === "better", col: "--offense" },
     { name: "Worse in both", test: (d, o) => d === "worse" && o === "worse", col: "--muted" },
-    { name: "Same rank on one side", test: (d, o) => d === "same" || o === "same", col: "--axis" },
+    { name: "Better on defense, same on offense", test: (d, o) => d === "better" && o === "same", col: "--defense" },
+    { name: "Better on offense, same on defense", test: (d, o) => d === "same" && o === "better", col: "--offense" },
+    { name: "Worse on defense, same on offense", test: (d, o) => d === "worse" && o === "same", col: "--axis" },
+    { name: "Worse on offense, same on defense", test: (d, o) => d === "same" && o === "worse", col: "--axis" },
   ].map(g => ({ ...g, teams: [] }));
   for (const w of winners) {
     const l = opponentOf(w), d = cmp(w.defense_rank, l.defense_rank), o = cmp(w.offense_rank, l.offense_rank);
